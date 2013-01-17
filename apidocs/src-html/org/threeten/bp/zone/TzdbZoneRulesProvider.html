@@ -1,0 +1,328 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Copyright (c) 2007-2013, Stephen Colebourne &amp; Michael Nascimento Santos<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * All rights reserved.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> *<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * Redistribution and use in source and binary forms, with or without<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * modification, are permitted provided that the following conditions are met:<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *  * Redistributions of source code must retain the above copyright notice,<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *    this list of conditions and the following disclaimer.<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *<a name="line.11"></a>
+<span class="sourceLineNo">012</span> *  * Redistributions in binary form must reproduce the above copyright notice,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> *    this list of conditions and the following disclaimer in the documentation<a name="line.13"></a>
+<span class="sourceLineNo">014</span> *    and/or other materials provided with the distribution.<a name="line.14"></a>
+<span class="sourceLineNo">015</span> *<a name="line.15"></a>
+<span class="sourceLineNo">016</span> *  * Neither the name of JSR-310 nor the names of its contributors<a name="line.16"></a>
+<span class="sourceLineNo">017</span> *    may be used to endorse or promote products derived from this software<a name="line.17"></a>
+<span class="sourceLineNo">018</span> *    without specific prior written permission.<a name="line.18"></a>
+<span class="sourceLineNo">019</span> *<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS<a name="line.20"></a>
+<span class="sourceLineNo">021</span> * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT<a name="line.21"></a>
+<span class="sourceLineNo">022</span> * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR<a name="line.22"></a>
+<span class="sourceLineNo">023</span> * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.<a name="line.30"></a>
+<span class="sourceLineNo">031</span> */<a name="line.31"></a>
+<span class="sourceLineNo">032</span>package org.threeten.bp.zone;<a name="line.32"></a>
+<span class="sourceLineNo">033</span><a name="line.33"></a>
+<span class="sourceLineNo">034</span>import java.io.ByteArrayInputStream;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import java.io.DataInputStream;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import java.io.IOException;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import java.io.InputStream;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import java.io.StreamCorruptedException;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>import java.net.URL;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>import java.util.Arrays;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>import java.util.Enumeration;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>import java.util.HashSet;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>import java.util.NavigableMap;<a name="line.43"></a>
+<span class="sourceLineNo">044</span>import java.util.Objects;<a name="line.44"></a>
+<span class="sourceLineNo">045</span>import java.util.Set;<a name="line.45"></a>
+<span class="sourceLineNo">046</span>import java.util.TreeMap;<a name="line.46"></a>
+<span class="sourceLineNo">047</span>import java.util.concurrent.ConcurrentNavigableMap;<a name="line.47"></a>
+<span class="sourceLineNo">048</span>import java.util.concurrent.ConcurrentSkipListMap;<a name="line.48"></a>
+<span class="sourceLineNo">049</span>import java.util.concurrent.CopyOnWriteArraySet;<a name="line.49"></a>
+<span class="sourceLineNo">050</span>import java.util.concurrent.atomic.AtomicReferenceArray;<a name="line.50"></a>
+<span class="sourceLineNo">051</span><a name="line.51"></a>
+<span class="sourceLineNo">052</span>/**<a name="line.52"></a>
+<span class="sourceLineNo">053</span> * Loads time-zone rules for 'TZDB'.<a name="line.53"></a>
+<span class="sourceLineNo">054</span> * &lt;p&gt;<a name="line.54"></a>
+<span class="sourceLineNo">055</span> * This class is public for the service loader to access.<a name="line.55"></a>
+<span class="sourceLineNo">056</span> *<a name="line.56"></a>
+<span class="sourceLineNo">057</span> * &lt;h3&gt;Specification for implementors&lt;/h3&gt;<a name="line.57"></a>
+<span class="sourceLineNo">058</span> * This class is immutable and thread-safe.<a name="line.58"></a>
+<span class="sourceLineNo">059</span> */<a name="line.59"></a>
+<span class="sourceLineNo">060</span>public final class TzdbZoneRulesProvider extends ZoneRulesProvider {<a name="line.60"></a>
+<span class="sourceLineNo">061</span>    // TODO: can this be private/hidden in any way?<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    // service loader seems to need it to be public<a name="line.62"></a>
+<span class="sourceLineNo">063</span><a name="line.63"></a>
+<span class="sourceLineNo">064</span>    /**<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     * All the regions that are available.<a name="line.65"></a>
+<span class="sourceLineNo">066</span>     */<a name="line.66"></a>
+<span class="sourceLineNo">067</span>    private final Set&lt;String&gt; regionIds = new CopyOnWriteArraySet&lt;&gt;();<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    /**<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     * All the versions that are available.<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     */<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    private final ConcurrentNavigableMap&lt;String, Version&gt; versions = new ConcurrentSkipListMap&lt;&gt;();<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    /**<a name="line.72"></a>
+<span class="sourceLineNo">073</span>     * All the URLs that have been loaded.<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     * Uses String to avoid equals() on URL.<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     */<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    private Set&lt;String&gt; loadedUrls = new CopyOnWriteArraySet&lt;&gt;();<a name="line.76"></a>
+<span class="sourceLineNo">077</span><a name="line.77"></a>
+<span class="sourceLineNo">078</span>    /**<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     * Creates an instance.<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     * Created by the {@code ServiceLoader}.<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     *<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     * @throws ZoneRulesException if unable to load<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     */<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    public TzdbZoneRulesProvider() {<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        super();<a name="line.85"></a>
+<span class="sourceLineNo">086</span>        if (load(ClassLoader.getSystemClassLoader()) == false) {<a name="line.86"></a>
+<span class="sourceLineNo">087</span>            throw new ZoneRulesException("No time-zone rules found for 'TZDB'");<a name="line.87"></a>
+<span class="sourceLineNo">088</span>        }<a name="line.88"></a>
+<span class="sourceLineNo">089</span>    }<a name="line.89"></a>
+<span class="sourceLineNo">090</span><a name="line.90"></a>
+<span class="sourceLineNo">091</span>    //-----------------------------------------------------------------------<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    @Override<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    protected Set&lt;String&gt; provideZoneIds() {<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        return new HashSet&lt;&gt;(regionIds);<a name="line.94"></a>
+<span class="sourceLineNo">095</span>    }<a name="line.95"></a>
+<span class="sourceLineNo">096</span><a name="line.96"></a>
+<span class="sourceLineNo">097</span>    @Override<a name="line.97"></a>
+<span class="sourceLineNo">098</span>    protected ZoneRules provideRules(String zoneId) {<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        Objects.requireNonNull(zoneId, "zoneId");<a name="line.99"></a>
+<span class="sourceLineNo">100</span>        ZoneRules rules = versions.lastEntry().getValue().getRules(zoneId);<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        if (rules == null) {<a name="line.101"></a>
+<span class="sourceLineNo">102</span>            throw new ZoneRulesException("Unknown time-zone ID: " + zoneId);<a name="line.102"></a>
+<span class="sourceLineNo">103</span>        }<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        return rules;<a name="line.104"></a>
+<span class="sourceLineNo">105</span>    }<a name="line.105"></a>
+<span class="sourceLineNo">106</span><a name="line.106"></a>
+<span class="sourceLineNo">107</span>    @Override<a name="line.107"></a>
+<span class="sourceLineNo">108</span>    protected NavigableMap&lt;String, ZoneRules&gt; provideVersions(String zoneId) {<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        TreeMap&lt;String, ZoneRules&gt; map = new TreeMap&lt;&gt;();<a name="line.109"></a>
+<span class="sourceLineNo">110</span>        for (Version version : versions.values()) {<a name="line.110"></a>
+<span class="sourceLineNo">111</span>            ZoneRules rules = version.getRules(zoneId);<a name="line.111"></a>
+<span class="sourceLineNo">112</span>            if (rules != null) {<a name="line.112"></a>
+<span class="sourceLineNo">113</span>                map.put(version.versionId, rules);<a name="line.113"></a>
+<span class="sourceLineNo">114</span>            }<a name="line.114"></a>
+<span class="sourceLineNo">115</span>        }<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        return map;<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    }<a name="line.117"></a>
+<span class="sourceLineNo">118</span><a name="line.118"></a>
+<span class="sourceLineNo">119</span>    //-------------------------------------------------------------------------<a name="line.119"></a>
+<span class="sourceLineNo">120</span>    /**<a name="line.120"></a>
+<span class="sourceLineNo">121</span>     * Loads the rules.<a name="line.121"></a>
+<span class="sourceLineNo">122</span>     *<a name="line.122"></a>
+<span class="sourceLineNo">123</span>     * @param classLoader  the class loader to use, not null<a name="line.123"></a>
+<span class="sourceLineNo">124</span>     * @return true if updated<a name="line.124"></a>
+<span class="sourceLineNo">125</span>     * @throws ZoneRulesException if unable to load<a name="line.125"></a>
+<span class="sourceLineNo">126</span>     */<a name="line.126"></a>
+<span class="sourceLineNo">127</span>    private boolean load(ClassLoader classLoader) {<a name="line.127"></a>
+<span class="sourceLineNo">128</span>        boolean updated = false;<a name="line.128"></a>
+<span class="sourceLineNo">129</span>        URL url = null;<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        try {<a name="line.130"></a>
+<span class="sourceLineNo">131</span>            Enumeration&lt;URL&gt; en = classLoader.getResources("org/threeten/bp/TZDB.dat");<a name="line.131"></a>
+<span class="sourceLineNo">132</span>            while (en.hasMoreElements()) {<a name="line.132"></a>
+<span class="sourceLineNo">133</span>                url = en.nextElement();<a name="line.133"></a>
+<span class="sourceLineNo">134</span>                if (loadedUrls.add(url.toExternalForm())) {<a name="line.134"></a>
+<span class="sourceLineNo">135</span>                    Iterable&lt;Version&gt; loadedVersions = load(url);<a name="line.135"></a>
+<span class="sourceLineNo">136</span>                    for (Version loadedVersion : loadedVersions) {<a name="line.136"></a>
+<span class="sourceLineNo">137</span>                        if (versions.putIfAbsent(loadedVersion.versionId, loadedVersion) != null) {<a name="line.137"></a>
+<span class="sourceLineNo">138</span>                            throw new ZoneRulesException("Data already loaded for TZDB time-zone rules version: " + loadedVersion.versionId);<a name="line.138"></a>
+<span class="sourceLineNo">139</span>                        }<a name="line.139"></a>
+<span class="sourceLineNo">140</span>                    }<a name="line.140"></a>
+<span class="sourceLineNo">141</span>                    updated = true;<a name="line.141"></a>
+<span class="sourceLineNo">142</span>                }<a name="line.142"></a>
+<span class="sourceLineNo">143</span>            }<a name="line.143"></a>
+<span class="sourceLineNo">144</span>        } catch (Exception ex) {<a name="line.144"></a>
+<span class="sourceLineNo">145</span>            throw new ZoneRulesException("Unable to load TZDB time-zone rules: " + url, ex);<a name="line.145"></a>
+<span class="sourceLineNo">146</span>        }<a name="line.146"></a>
+<span class="sourceLineNo">147</span>        return updated;<a name="line.147"></a>
+<span class="sourceLineNo">148</span>    }<a name="line.148"></a>
+<span class="sourceLineNo">149</span><a name="line.149"></a>
+<span class="sourceLineNo">150</span>    /**<a name="line.150"></a>
+<span class="sourceLineNo">151</span>     * Loads the rules from a URL, often in a jar file.<a name="line.151"></a>
+<span class="sourceLineNo">152</span>     *<a name="line.152"></a>
+<span class="sourceLineNo">153</span>     * @param url  the jar file to load, not null<a name="line.153"></a>
+<span class="sourceLineNo">154</span>     * @throws Exception if an error occurs<a name="line.154"></a>
+<span class="sourceLineNo">155</span>     */<a name="line.155"></a>
+<span class="sourceLineNo">156</span>    private Iterable&lt;Version&gt; load(URL url) throws ClassNotFoundException, IOException {<a name="line.156"></a>
+<span class="sourceLineNo">157</span>        try (InputStream in = url.openStream()) {<a name="line.157"></a>
+<span class="sourceLineNo">158</span>            DataInputStream dis = new DataInputStream(in);<a name="line.158"></a>
+<span class="sourceLineNo">159</span>            if (dis.readByte() != 1) {<a name="line.159"></a>
+<span class="sourceLineNo">160</span>                throw new StreamCorruptedException("File format not recognised");<a name="line.160"></a>
+<span class="sourceLineNo">161</span>            }<a name="line.161"></a>
+<span class="sourceLineNo">162</span>            // group<a name="line.162"></a>
+<span class="sourceLineNo">163</span>            String groupId = dis.readUTF();<a name="line.163"></a>
+<span class="sourceLineNo">164</span>            if ("TZDB".equals(groupId) == false) {<a name="line.164"></a>
+<span class="sourceLineNo">165</span>                throw new StreamCorruptedException("File format not recognised");<a name="line.165"></a>
+<span class="sourceLineNo">166</span>            }<a name="line.166"></a>
+<span class="sourceLineNo">167</span>            // versions<a name="line.167"></a>
+<span class="sourceLineNo">168</span>            int versionCount = dis.readShort();<a name="line.168"></a>
+<span class="sourceLineNo">169</span>            String[] versionArray = new String[versionCount];<a name="line.169"></a>
+<span class="sourceLineNo">170</span>            for (int i = 0; i &lt; versionCount; i++) {<a name="line.170"></a>
+<span class="sourceLineNo">171</span>                versionArray[i] = dis.readUTF();<a name="line.171"></a>
+<span class="sourceLineNo">172</span>            }<a name="line.172"></a>
+<span class="sourceLineNo">173</span>            // regions<a name="line.173"></a>
+<span class="sourceLineNo">174</span>            int regionCount = dis.readShort();<a name="line.174"></a>
+<span class="sourceLineNo">175</span>            String[] regionArray = new String[regionCount];<a name="line.175"></a>
+<span class="sourceLineNo">176</span>            for (int i = 0; i &lt; regionCount; i++) {<a name="line.176"></a>
+<span class="sourceLineNo">177</span>                regionArray[i] = dis.readUTF();<a name="line.177"></a>
+<span class="sourceLineNo">178</span>            }<a name="line.178"></a>
+<span class="sourceLineNo">179</span>            regionIds.addAll(Arrays.asList(regionArray));<a name="line.179"></a>
+<span class="sourceLineNo">180</span>            // rules<a name="line.180"></a>
+<span class="sourceLineNo">181</span>            int ruleCount = dis.readShort();<a name="line.181"></a>
+<span class="sourceLineNo">182</span>            Object[] ruleArray = new Object[ruleCount];<a name="line.182"></a>
+<span class="sourceLineNo">183</span>            for (int i = 0; i &lt; ruleCount; i++) {<a name="line.183"></a>
+<span class="sourceLineNo">184</span>                byte[] bytes = new byte[dis.readShort()];<a name="line.184"></a>
+<span class="sourceLineNo">185</span>                dis.readFully(bytes);<a name="line.185"></a>
+<span class="sourceLineNo">186</span>                ruleArray[i] = bytes;<a name="line.186"></a>
+<span class="sourceLineNo">187</span>            }<a name="line.187"></a>
+<span class="sourceLineNo">188</span>            AtomicReferenceArray&lt;Object&gt; ruleData = new AtomicReferenceArray&lt;&gt;(ruleArray);<a name="line.188"></a>
+<span class="sourceLineNo">189</span>            // link version-region-rules<a name="line.189"></a>
+<span class="sourceLineNo">190</span>            Set&lt;Version&gt; versionSet = new HashSet&lt;Version&gt;(versionCount);<a name="line.190"></a>
+<span class="sourceLineNo">191</span>            for (int i = 0; i &lt; versionCount; i++) {<a name="line.191"></a>
+<span class="sourceLineNo">192</span>                int versionRegionCount = dis.readShort();<a name="line.192"></a>
+<span class="sourceLineNo">193</span>                String[] versionRegionArray = new String[versionRegionCount];<a name="line.193"></a>
+<span class="sourceLineNo">194</span>                short[] versionRulesArray = new short[versionRegionCount];<a name="line.194"></a>
+<span class="sourceLineNo">195</span>                for (int j = 0; j &lt; versionRegionCount; j++) {<a name="line.195"></a>
+<span class="sourceLineNo">196</span>                    versionRegionArray[j] = regionArray[dis.readShort()];<a name="line.196"></a>
+<span class="sourceLineNo">197</span>                    versionRulesArray[j] = dis.readShort();<a name="line.197"></a>
+<span class="sourceLineNo">198</span>                }<a name="line.198"></a>
+<span class="sourceLineNo">199</span>                versionSet.add(new Version(versionArray[i], versionRegionArray, versionRulesArray, ruleData));<a name="line.199"></a>
+<span class="sourceLineNo">200</span>            }<a name="line.200"></a>
+<span class="sourceLineNo">201</span>            return versionSet;<a name="line.201"></a>
+<span class="sourceLineNo">202</span>        }<a name="line.202"></a>
+<span class="sourceLineNo">203</span>    }<a name="line.203"></a>
+<span class="sourceLineNo">204</span><a name="line.204"></a>
+<span class="sourceLineNo">205</span>    @Override<a name="line.205"></a>
+<span class="sourceLineNo">206</span>    public String toString() {<a name="line.206"></a>
+<span class="sourceLineNo">207</span>        return "TZDB";<a name="line.207"></a>
+<span class="sourceLineNo">208</span>    }<a name="line.208"></a>
+<span class="sourceLineNo">209</span><a name="line.209"></a>
+<span class="sourceLineNo">210</span>    //-----------------------------------------------------------------------<a name="line.210"></a>
+<span class="sourceLineNo">211</span>    /**<a name="line.211"></a>
+<span class="sourceLineNo">212</span>     * A version of the TZDB rules.<a name="line.212"></a>
+<span class="sourceLineNo">213</span>     */<a name="line.213"></a>
+<span class="sourceLineNo">214</span>    static class Version {<a name="line.214"></a>
+<span class="sourceLineNo">215</span>        private final String versionId;<a name="line.215"></a>
+<span class="sourceLineNo">216</span>        private final String[] regionArray;<a name="line.216"></a>
+<span class="sourceLineNo">217</span>        private final short[] ruleIndices;<a name="line.217"></a>
+<span class="sourceLineNo">218</span>        private final AtomicReferenceArray&lt;Object&gt; ruleData;<a name="line.218"></a>
+<span class="sourceLineNo">219</span><a name="line.219"></a>
+<span class="sourceLineNo">220</span>        Version(String versionId, String[] regionIds, short[] ruleIndices, AtomicReferenceArray&lt;Object&gt; ruleData) {<a name="line.220"></a>
+<span class="sourceLineNo">221</span>            this.ruleData = ruleData;<a name="line.221"></a>
+<span class="sourceLineNo">222</span>            this.versionId = versionId;<a name="line.222"></a>
+<span class="sourceLineNo">223</span>            this.regionArray = regionIds;<a name="line.223"></a>
+<span class="sourceLineNo">224</span>            this.ruleIndices = ruleIndices;<a name="line.224"></a>
+<span class="sourceLineNo">225</span>        }<a name="line.225"></a>
+<span class="sourceLineNo">226</span><a name="line.226"></a>
+<span class="sourceLineNo">227</span>        ZoneRules getRules(String regionId) {<a name="line.227"></a>
+<span class="sourceLineNo">228</span>            int regionIndex = Arrays.binarySearch(regionArray, regionId);<a name="line.228"></a>
+<span class="sourceLineNo">229</span>            if (regionIndex &lt; 0) {<a name="line.229"></a>
+<span class="sourceLineNo">230</span>                return null;<a name="line.230"></a>
+<span class="sourceLineNo">231</span>            }<a name="line.231"></a>
+<span class="sourceLineNo">232</span>            try {<a name="line.232"></a>
+<span class="sourceLineNo">233</span>                return createRule(ruleIndices[regionIndex]);<a name="line.233"></a>
+<span class="sourceLineNo">234</span>            } catch (Exception ex) {<a name="line.234"></a>
+<span class="sourceLineNo">235</span>                throw new ZoneRulesException("Invalid binary time-zone data: TZDB:" + regionId + ", version: " + versionId, ex);<a name="line.235"></a>
+<span class="sourceLineNo">236</span>            }<a name="line.236"></a>
+<span class="sourceLineNo">237</span>        }<a name="line.237"></a>
+<span class="sourceLineNo">238</span><a name="line.238"></a>
+<span class="sourceLineNo">239</span>        ZoneRules createRule(short index) throws Exception {<a name="line.239"></a>
+<span class="sourceLineNo">240</span>            Object obj = ruleData.get(index);<a name="line.240"></a>
+<span class="sourceLineNo">241</span>            if (obj instanceof byte[]) {<a name="line.241"></a>
+<span class="sourceLineNo">242</span>                byte[] bytes = (byte[]) obj;<a name="line.242"></a>
+<span class="sourceLineNo">243</span>                DataInputStream dis = new DataInputStream(new ByteArrayInputStream(bytes));<a name="line.243"></a>
+<span class="sourceLineNo">244</span>                obj = Ser.read(dis);<a name="line.244"></a>
+<span class="sourceLineNo">245</span>                ruleData.set(index, obj);<a name="line.245"></a>
+<span class="sourceLineNo">246</span>            }<a name="line.246"></a>
+<span class="sourceLineNo">247</span>            return (ZoneRules) obj;<a name="line.247"></a>
+<span class="sourceLineNo">248</span>        }<a name="line.248"></a>
+<span class="sourceLineNo">249</span><a name="line.249"></a>
+<span class="sourceLineNo">250</span>        @Override<a name="line.250"></a>
+<span class="sourceLineNo">251</span>        public String toString() {<a name="line.251"></a>
+<span class="sourceLineNo">252</span>            return versionId;<a name="line.252"></a>
+<span class="sourceLineNo">253</span>        }<a name="line.253"></a>
+<span class="sourceLineNo">254</span>    }<a name="line.254"></a>
+<span class="sourceLineNo">255</span><a name="line.255"></a>
+<span class="sourceLineNo">256</span>}<a name="line.256"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

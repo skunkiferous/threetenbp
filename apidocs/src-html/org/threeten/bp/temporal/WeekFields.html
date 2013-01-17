@@ -1,0 +1,702 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Copyright (c) 2007-2013, Stephen Colebourne &amp; Michael Nascimento Santos<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * All rights reserved.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> *<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * Redistribution and use in source and binary forms, with or without<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * modification, are permitted provided that the following conditions are met:<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *  * Redistributions of source code must retain the above copyright notice,<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *    this list of conditions and the following disclaimer.<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *<a name="line.11"></a>
+<span class="sourceLineNo">012</span> *  * Redistributions in binary form must reproduce the above copyright notice,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> *    this list of conditions and the following disclaimer in the documentation<a name="line.13"></a>
+<span class="sourceLineNo">014</span> *    and/or other materials provided with the distribution.<a name="line.14"></a>
+<span class="sourceLineNo">015</span> *<a name="line.15"></a>
+<span class="sourceLineNo">016</span> *  * Neither the name of JSR-310 nor the names of its contributors<a name="line.16"></a>
+<span class="sourceLineNo">017</span> *    may be used to endorse or promote products derived from this software<a name="line.17"></a>
+<span class="sourceLineNo">018</span> *    without specific prior written permission.<a name="line.18"></a>
+<span class="sourceLineNo">019</span> *<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS<a name="line.20"></a>
+<span class="sourceLineNo">021</span> * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT<a name="line.21"></a>
+<span class="sourceLineNo">022</span> * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR<a name="line.22"></a>
+<span class="sourceLineNo">023</span> * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.<a name="line.30"></a>
+<span class="sourceLineNo">031</span> */<a name="line.31"></a>
+<span class="sourceLineNo">032</span>package org.threeten.bp.temporal;<a name="line.32"></a>
+<span class="sourceLineNo">033</span><a name="line.33"></a>
+<span class="sourceLineNo">034</span>import java.io.InvalidObjectException;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import java.io.Serializable;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import java.util.GregorianCalendar;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import java.util.Locale;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import java.util.Objects;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>import java.util.concurrent.ConcurrentHashMap;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>import java.util.concurrent.ConcurrentMap;<a name="line.40"></a>
+<span class="sourceLineNo">041</span><a name="line.41"></a>
+<span class="sourceLineNo">042</span>import org.threeten.bp.DayOfWeek;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>import org.threeten.bp.format.DateTimeBuilder;<a name="line.43"></a>
+<span class="sourceLineNo">044</span>import org.threeten.bp.jdk8.Jdk8Methods;<a name="line.44"></a>
+<span class="sourceLineNo">045</span><a name="line.45"></a>
+<span class="sourceLineNo">046</span>/**<a name="line.46"></a>
+<span class="sourceLineNo">047</span> * Localized definitions of the day-of-week, week-of-month and week-of-year fields.<a name="line.47"></a>
+<span class="sourceLineNo">048</span> * &lt;p&gt;<a name="line.48"></a>
+<span class="sourceLineNo">049</span> * A standard week is seven days long, but cultures have different definitions for some<a name="line.49"></a>
+<span class="sourceLineNo">050</span> * other aspects of a week. This class represents the definition of the week, for the<a name="line.50"></a>
+<span class="sourceLineNo">051</span> * purpose of providing {@link TemporalField} instances.<a name="line.51"></a>
+<span class="sourceLineNo">052</span> * &lt;p&gt;<a name="line.52"></a>
+<span class="sourceLineNo">053</span> * WeekFields provides three fields,<a name="line.53"></a>
+<span class="sourceLineNo">054</span> * {@link #dayOfWeek()}, {@link #weekOfMonth()}, and {@link #weekOfYear()}<a name="line.54"></a>
+<span class="sourceLineNo">055</span> * that provide access to the values from any {@link Temporal temporal object}.<a name="line.55"></a>
+<span class="sourceLineNo">056</span> * &lt;p&gt;<a name="line.56"></a>
+<span class="sourceLineNo">057</span> * The computations for day-of-week, week-of-month, and week-of-year are based<a name="line.57"></a>
+<span class="sourceLineNo">058</span> * on the  {@link ChronoField#YEAR proleptic-year},<a name="line.58"></a>
+<span class="sourceLineNo">059</span> * {@link ChronoField#MONTH_OF_YEAR month-of-year},<a name="line.59"></a>
+<span class="sourceLineNo">060</span> * {@link ChronoField#DAY_OF_MONTH day-of-month}, and<a name="line.60"></a>
+<span class="sourceLineNo">061</span> * {@link ChronoField#DAY_OF_WEEK ISO day-of-week} which are based on the<a name="line.61"></a>
+<span class="sourceLineNo">062</span> * {@link ChronoField#EPOCH_DAY epoch-day} and the chronology.<a name="line.62"></a>
+<span class="sourceLineNo">063</span> * The values may not be aligned with the {@link ChronoField#YEAR_OF_ERA year-of-Era}<a name="line.63"></a>
+<span class="sourceLineNo">064</span> * depending on the Chronology.<a name="line.64"></a>
+<span class="sourceLineNo">065</span> * &lt;p&gt;A week is defined by:<a name="line.65"></a>
+<span class="sourceLineNo">066</span> * &lt;ul&gt;<a name="line.66"></a>
+<span class="sourceLineNo">067</span> * &lt;li&gt;The first day-of-week.<a name="line.67"></a>
+<span class="sourceLineNo">068</span> * For example, the ISO-8601 standard considers Monday to be the first day-of-week.<a name="line.68"></a>
+<span class="sourceLineNo">069</span> * &lt;li&gt;The minimal number of days in the first week.<a name="line.69"></a>
+<span class="sourceLineNo">070</span> * For example, the ISO-08601 standard counts the first week as needing at least 4 days.<a name="line.70"></a>
+<span class="sourceLineNo">071</span> * &lt;/ul&gt;&lt;p&gt;<a name="line.71"></a>
+<span class="sourceLineNo">072</span> * Together these two values allow a year or month to be divided into weeks.<a name="line.72"></a>
+<span class="sourceLineNo">073</span> * &lt;p&gt;<a name="line.73"></a>
+<span class="sourceLineNo">074</span> * &lt;h3&gt;Week of Month&lt;/h3&gt;<a name="line.74"></a>
+<span class="sourceLineNo">075</span> * One field is used: week-of-month.<a name="line.75"></a>
+<span class="sourceLineNo">076</span> * The calculation ensures that weeks never overlap a month boundary.<a name="line.76"></a>
+<span class="sourceLineNo">077</span> * The month is divided into periods where each period starts on the defined first day-of-week.<a name="line.77"></a>
+<span class="sourceLineNo">078</span> * The earliest period is referred to as week 0 if it has less than the minimal number of days<a name="line.78"></a>
+<span class="sourceLineNo">079</span> * and week 1 if it has at least the minimal number of days.<a name="line.79"></a>
+<span class="sourceLineNo">080</span> * &lt;p&gt;<a name="line.80"></a>
+<span class="sourceLineNo">081</span> * &lt;table cellpadding="0" cellspacing="3" border="0" style="text-align: left; width: 50%;"&gt;<a name="line.81"></a>
+<span class="sourceLineNo">082</span> * &lt;caption&gt;Examples of WeekFields&lt;/caption&gt;<a name="line.82"></a>
+<span class="sourceLineNo">083</span> * &lt;tr&gt;&lt;th&gt;Date&lt;/th&gt;&lt;td&gt;Day-of-week&lt;/td&gt;<a name="line.83"></a>
+<span class="sourceLineNo">084</span> *  &lt;td&gt;First day: Monday&lt;br&gt;Minimal days: 4&lt;/td&gt;&lt;td&gt;First day: Monday&lt;br&gt;Minimal days: 5&lt;/td&gt;&lt;/tr&gt;<a name="line.84"></a>
+<span class="sourceLineNo">085</span> * &lt;tr&gt;&lt;th&gt;2008-12-31&lt;/th&gt;&lt;td&gt;Wednesday&lt;/td&gt;<a name="line.85"></a>
+<span class="sourceLineNo">086</span> *  &lt;td&gt;Week 5 of December 2008&lt;/td&gt;&lt;td&gt;Week 5 of December 2008&lt;/td&gt;&lt;/tr&gt;<a name="line.86"></a>
+<span class="sourceLineNo">087</span> * &lt;tr&gt;&lt;th&gt;2009-01-01&lt;/th&gt;&lt;td&gt;Thursday&lt;/td&gt;<a name="line.87"></a>
+<span class="sourceLineNo">088</span> *  &lt;td&gt;Week 1 of January 2009&lt;/td&gt;&lt;td&gt;Week 0 of January 2009&lt;/td&gt;&lt;/tr&gt;<a name="line.88"></a>
+<span class="sourceLineNo">089</span> * &lt;tr&gt;&lt;th&gt;2009-01-04&lt;/th&gt;&lt;td&gt;Sunday&lt;/td&gt;<a name="line.89"></a>
+<span class="sourceLineNo">090</span> *  &lt;td&gt;Week 1 of January 2009&lt;/td&gt;&lt;td&gt;Week 0 of January 2009&lt;/td&gt;&lt;/tr&gt;<a name="line.90"></a>
+<span class="sourceLineNo">091</span> * &lt;tr&gt;&lt;th&gt;2009-01-05&lt;/th&gt;&lt;td&gt;Monday&lt;/td&gt;<a name="line.91"></a>
+<span class="sourceLineNo">092</span> *  &lt;td&gt;Week 2 of January 2009&lt;/td&gt;&lt;td&gt;Week 1 of January 2009&lt;/td&gt;&lt;/tr&gt;<a name="line.92"></a>
+<span class="sourceLineNo">093</span> * &lt;/table&gt;<a name="line.93"></a>
+<span class="sourceLineNo">094</span> * &lt;p&gt;<a name="line.94"></a>
+<span class="sourceLineNo">095</span> * &lt;h3&gt;Week of Year&lt;/h3&gt;<a name="line.95"></a>
+<span class="sourceLineNo">096</span> * One field is used: week-of-year.<a name="line.96"></a>
+<span class="sourceLineNo">097</span> * The calculation ensures that weeks never overlap a year boundary.<a name="line.97"></a>
+<span class="sourceLineNo">098</span> * The year is divided into periods where each period starts on the defined first day-of-week.<a name="line.98"></a>
+<span class="sourceLineNo">099</span> * The earliest period is referred to as week 0 if it has less than the minimal number of days<a name="line.99"></a>
+<span class="sourceLineNo">100</span> * and week 1 if it has at least the minimal number of days.<a name="line.100"></a>
+<span class="sourceLineNo">101</span> * &lt;p&gt;<a name="line.101"></a>
+<span class="sourceLineNo">102</span> * This class is immutable and thread-safe.<a name="line.102"></a>
+<span class="sourceLineNo">103</span> */<a name="line.103"></a>
+<span class="sourceLineNo">104</span>public final class WeekFields implements Serializable {<a name="line.104"></a>
+<span class="sourceLineNo">105</span>    // implementation notes<a name="line.105"></a>
+<span class="sourceLineNo">106</span>    // querying week-of-month or week-of-year should return the week value bound within the month/year<a name="line.106"></a>
+<span class="sourceLineNo">107</span>    // however, setting the week value should be lenient (use plus/minus weeks)<a name="line.107"></a>
+<span class="sourceLineNo">108</span>    // allow week-of-month outer range [0 to 5]<a name="line.108"></a>
+<span class="sourceLineNo">109</span>    // allow week-of-year outer range [0 to 53]<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    // this is because callers shouldn't be expected to know the details of validity<a name="line.110"></a>
+<span class="sourceLineNo">111</span><a name="line.111"></a>
+<span class="sourceLineNo">112</span>    /**<a name="line.112"></a>
+<span class="sourceLineNo">113</span>     * The cache of rules by firstDayOfWeek plus minimalDays.<a name="line.113"></a>
+<span class="sourceLineNo">114</span>     * Initialized first to be available for definition of ISO, etc.<a name="line.114"></a>
+<span class="sourceLineNo">115</span>     */<a name="line.115"></a>
+<span class="sourceLineNo">116</span>    private static final ConcurrentMap&lt;String, WeekFields&gt; CACHE = new ConcurrentHashMap&lt;&gt;(4, 0.75f, 2);<a name="line.116"></a>
+<span class="sourceLineNo">117</span><a name="line.117"></a>
+<span class="sourceLineNo">118</span>    /**<a name="line.118"></a>
+<span class="sourceLineNo">119</span>     * The ISO-8601 definition, where a week starts on Monday and the first week<a name="line.119"></a>
+<span class="sourceLineNo">120</span>     * has a minimum of 4 days.<a name="line.120"></a>
+<span class="sourceLineNo">121</span>     * &lt;p&gt;<a name="line.121"></a>
+<span class="sourceLineNo">122</span>     * The ISO-8601 standard defines a calendar system based on weeks.<a name="line.122"></a>
+<span class="sourceLineNo">123</span>     * It uses the week-based-year and week-of-week-based-year concepts to split<a name="line.123"></a>
+<span class="sourceLineNo">124</span>     * up the passage of days instead of the standard year/month/day.<a name="line.124"></a>
+<span class="sourceLineNo">125</span>     * &lt;p&gt;<a name="line.125"></a>
+<span class="sourceLineNo">126</span>     * Note that the first week may start in the previous calendar year.<a name="line.126"></a>
+<span class="sourceLineNo">127</span>     * Note also that the first few days of a calendar year may be in the<a name="line.127"></a>
+<span class="sourceLineNo">128</span>     * week-based-year corresponding to the previous calendar year.<a name="line.128"></a>
+<span class="sourceLineNo">129</span>     */<a name="line.129"></a>
+<span class="sourceLineNo">130</span>    public static final WeekFields ISO = new WeekFields(DayOfWeek.MONDAY, 4);<a name="line.130"></a>
+<span class="sourceLineNo">131</span><a name="line.131"></a>
+<span class="sourceLineNo">132</span>    /**<a name="line.132"></a>
+<span class="sourceLineNo">133</span>     * The common definition of a week that starts on Sunday.<a name="line.133"></a>
+<span class="sourceLineNo">134</span>     * &lt;p&gt;<a name="line.134"></a>
+<span class="sourceLineNo">135</span>     * Defined as starting on Sunday and with a minimum of 1 day in the month.<a name="line.135"></a>
+<span class="sourceLineNo">136</span>     * This week definition is in use in the US and other European countries.<a name="line.136"></a>
+<span class="sourceLineNo">137</span>     *<a name="line.137"></a>
+<span class="sourceLineNo">138</span>     */<a name="line.138"></a>
+<span class="sourceLineNo">139</span>    public static final WeekFields SUNDAY_START = WeekFields.of(DayOfWeek.SUNDAY, 1);<a name="line.139"></a>
+<span class="sourceLineNo">140</span><a name="line.140"></a>
+<span class="sourceLineNo">141</span>    /**<a name="line.141"></a>
+<span class="sourceLineNo">142</span>     * Serialization version.<a name="line.142"></a>
+<span class="sourceLineNo">143</span>     */<a name="line.143"></a>
+<span class="sourceLineNo">144</span>    private static final long serialVersionUID = -1177360819670808121L;<a name="line.144"></a>
+<span class="sourceLineNo">145</span><a name="line.145"></a>
+<span class="sourceLineNo">146</span>    /**<a name="line.146"></a>
+<span class="sourceLineNo">147</span>     * The first day-of-week.<a name="line.147"></a>
+<span class="sourceLineNo">148</span>     */<a name="line.148"></a>
+<span class="sourceLineNo">149</span>    private final DayOfWeek firstDayOfWeek;<a name="line.149"></a>
+<span class="sourceLineNo">150</span>    /**<a name="line.150"></a>
+<span class="sourceLineNo">151</span>     * The minimal number of days in the first week.<a name="line.151"></a>
+<span class="sourceLineNo">152</span>     */<a name="line.152"></a>
+<span class="sourceLineNo">153</span>    private final int minimalDays;<a name="line.153"></a>
+<span class="sourceLineNo">154</span><a name="line.154"></a>
+<span class="sourceLineNo">155</span>    /**<a name="line.155"></a>
+<span class="sourceLineNo">156</span>     * The field used to access the computed DayOfWeek.<a name="line.156"></a>
+<span class="sourceLineNo">157</span>     */<a name="line.157"></a>
+<span class="sourceLineNo">158</span>    private transient final TemporalField dayOfWeek = ComputedDayOfField.ofDayOfWeekField(this);<a name="line.158"></a>
+<span class="sourceLineNo">159</span><a name="line.159"></a>
+<span class="sourceLineNo">160</span>    /**<a name="line.160"></a>
+<span class="sourceLineNo">161</span>     * The field used to access the computed WeekOfMonth.<a name="line.161"></a>
+<span class="sourceLineNo">162</span>     */<a name="line.162"></a>
+<span class="sourceLineNo">163</span>    private transient final TemporalField weekOfMonth = ComputedDayOfField.ofWeekOfMonthField(this);<a name="line.163"></a>
+<span class="sourceLineNo">164</span><a name="line.164"></a>
+<span class="sourceLineNo">165</span>    /**<a name="line.165"></a>
+<span class="sourceLineNo">166</span>     * The field used to access the computed WeekOfYear.<a name="line.166"></a>
+<span class="sourceLineNo">167</span>     */<a name="line.167"></a>
+<span class="sourceLineNo">168</span>    private transient final TemporalField weekOfYear = ComputedDayOfField.ofWeekOfYearField(this);<a name="line.168"></a>
+<span class="sourceLineNo">169</span><a name="line.169"></a>
+<span class="sourceLineNo">170</span>    /**<a name="line.170"></a>
+<span class="sourceLineNo">171</span>     * Obtains an instance of {@code WeekFields} appropriate for a locale.<a name="line.171"></a>
+<span class="sourceLineNo">172</span>     * &lt;p&gt;<a name="line.172"></a>
+<span class="sourceLineNo">173</span>     * This will look up appropriate values from the provider of localization data.<a name="line.173"></a>
+<span class="sourceLineNo">174</span>     *<a name="line.174"></a>
+<span class="sourceLineNo">175</span>     * @param locale  the locale to use, not null<a name="line.175"></a>
+<span class="sourceLineNo">176</span>     * @return the week-definition, not null<a name="line.176"></a>
+<span class="sourceLineNo">177</span>     */<a name="line.177"></a>
+<span class="sourceLineNo">178</span>    public static WeekFields of(Locale locale) {<a name="line.178"></a>
+<span class="sourceLineNo">179</span>        Objects.requireNonNull(locale, "locale");<a name="line.179"></a>
+<span class="sourceLineNo">180</span>        locale = new Locale(locale.getLanguage(), locale.getCountry());  // elminate variants<a name="line.180"></a>
+<span class="sourceLineNo">181</span><a name="line.181"></a>
+<span class="sourceLineNo">182</span>        // obtain these from GregorianCalendar for now<a name="line.182"></a>
+<span class="sourceLineNo">183</span>        GregorianCalendar gcal = new GregorianCalendar(locale);<a name="line.183"></a>
+<span class="sourceLineNo">184</span>        int calDow = gcal.getFirstDayOfWeek();<a name="line.184"></a>
+<span class="sourceLineNo">185</span>        DayOfWeek dow = DayOfWeek.SUNDAY.plus(calDow - 1);<a name="line.185"></a>
+<span class="sourceLineNo">186</span>        int minDays = gcal.getMinimalDaysInFirstWeek();<a name="line.186"></a>
+<span class="sourceLineNo">187</span>        return WeekFields.of(dow, minDays);<a name="line.187"></a>
+<span class="sourceLineNo">188</span>    }<a name="line.188"></a>
+<span class="sourceLineNo">189</span><a name="line.189"></a>
+<span class="sourceLineNo">190</span>    /**<a name="line.190"></a>
+<span class="sourceLineNo">191</span>     * Obtains an instance of {@code WeekFields} from the first day-of-week and minimal days.<a name="line.191"></a>
+<span class="sourceLineNo">192</span>     * &lt;p&gt;<a name="line.192"></a>
+<span class="sourceLineNo">193</span>     * The first day-of-week defines the ISO {@code DayOfWeek} that is day 1 of the week.<a name="line.193"></a>
+<span class="sourceLineNo">194</span>     * The minimal number of days in the first week defines how many days must be present<a name="line.194"></a>
+<span class="sourceLineNo">195</span>     * in a month or year, starting from the first day-of-week, before the week is counted<a name="line.195"></a>
+<span class="sourceLineNo">196</span>     * as the first week. A value of 1 will count the first day of the month or year as part<a name="line.196"></a>
+<span class="sourceLineNo">197</span>     * of the first week, whereas a value of 7 will require the whole seven days to be in<a name="line.197"></a>
+<span class="sourceLineNo">198</span>     * the new month or year.<a name="line.198"></a>
+<span class="sourceLineNo">199</span>     * &lt;p&gt;<a name="line.199"></a>
+<span class="sourceLineNo">200</span>     * WeekFields instances are singletons; for each unique combination<a name="line.200"></a>
+<span class="sourceLineNo">201</span>     * of {@code firstDayOfWeek} and {@code minimalDaysInFirstWeek} the<a name="line.201"></a>
+<span class="sourceLineNo">202</span>     * the same instance will be returned.<a name="line.202"></a>
+<span class="sourceLineNo">203</span>     *<a name="line.203"></a>
+<span class="sourceLineNo">204</span>     * @param firstDayOfWeek  the first day of the week, not null<a name="line.204"></a>
+<span class="sourceLineNo">205</span>     * @param minimalDaysInFirstWeek  the minimal number of days in the first week, from 1 to 7<a name="line.205"></a>
+<span class="sourceLineNo">206</span>     * @return the week-definition, not null<a name="line.206"></a>
+<span class="sourceLineNo">207</span>     * @throws IllegalArgumentException if the minimal days value is less than one<a name="line.207"></a>
+<span class="sourceLineNo">208</span>     *      or greater than 7<a name="line.208"></a>
+<span class="sourceLineNo">209</span>     */<a name="line.209"></a>
+<span class="sourceLineNo">210</span>    public static WeekFields of(DayOfWeek firstDayOfWeek, int minimalDaysInFirstWeek) {<a name="line.210"></a>
+<span class="sourceLineNo">211</span>        String key = firstDayOfWeek.toString() + minimalDaysInFirstWeek;<a name="line.211"></a>
+<span class="sourceLineNo">212</span>        WeekFields rules = CACHE.get(key);<a name="line.212"></a>
+<span class="sourceLineNo">213</span>        if (rules == null) {<a name="line.213"></a>
+<span class="sourceLineNo">214</span>            rules = new WeekFields(firstDayOfWeek, minimalDaysInFirstWeek);<a name="line.214"></a>
+<span class="sourceLineNo">215</span>            CACHE.putIfAbsent(key, rules);<a name="line.215"></a>
+<span class="sourceLineNo">216</span>            rules = CACHE.get(key);<a name="line.216"></a>
+<span class="sourceLineNo">217</span>        }<a name="line.217"></a>
+<span class="sourceLineNo">218</span>        return rules;<a name="line.218"></a>
+<span class="sourceLineNo">219</span>    }<a name="line.219"></a>
+<span class="sourceLineNo">220</span><a name="line.220"></a>
+<span class="sourceLineNo">221</span>    //-----------------------------------------------------------------------<a name="line.221"></a>
+<span class="sourceLineNo">222</span>    /**<a name="line.222"></a>
+<span class="sourceLineNo">223</span>     * Creates an instance of the definition.<a name="line.223"></a>
+<span class="sourceLineNo">224</span>     *<a name="line.224"></a>
+<span class="sourceLineNo">225</span>     * @param firstDayOfWeek  the first day of the week, not null<a name="line.225"></a>
+<span class="sourceLineNo">226</span>     * @param minimalDaysInFirstWeek  the minimal number of days in the first week, from 1 to 7<a name="line.226"></a>
+<span class="sourceLineNo">227</span>     * @throws IllegalArgumentException if the minimal days value is invalid<a name="line.227"></a>
+<span class="sourceLineNo">228</span>     */<a name="line.228"></a>
+<span class="sourceLineNo">229</span>    private WeekFields(DayOfWeek firstDayOfWeek, int minimalDaysInFirstWeek) {<a name="line.229"></a>
+<span class="sourceLineNo">230</span>        Objects.requireNonNull(firstDayOfWeek, "firstDayOfWeek");<a name="line.230"></a>
+<span class="sourceLineNo">231</span>        if (minimalDaysInFirstWeek &lt; 1 || minimalDaysInFirstWeek &gt; 7) {<a name="line.231"></a>
+<span class="sourceLineNo">232</span>            throw new IllegalArgumentException("Minimal number of days is invalid");<a name="line.232"></a>
+<span class="sourceLineNo">233</span>        }<a name="line.233"></a>
+<span class="sourceLineNo">234</span>        this.firstDayOfWeek = firstDayOfWeek;<a name="line.234"></a>
+<span class="sourceLineNo">235</span>        this.minimalDays = minimalDaysInFirstWeek;<a name="line.235"></a>
+<span class="sourceLineNo">236</span>    }<a name="line.236"></a>
+<span class="sourceLineNo">237</span><a name="line.237"></a>
+<span class="sourceLineNo">238</span>    /**<a name="line.238"></a>
+<span class="sourceLineNo">239</span>     * Ensure valid singleton.<a name="line.239"></a>
+<span class="sourceLineNo">240</span>     * <a name="line.240"></a>
+<span class="sourceLineNo">241</span>     * @return the valid week fields instance, not null<a name="line.241"></a>
+<span class="sourceLineNo">242</span>     * @throws InvalidObjectException if invalid<a name="line.242"></a>
+<span class="sourceLineNo">243</span>     */<a name="line.243"></a>
+<span class="sourceLineNo">244</span>    private Object readResolve() throws InvalidObjectException {<a name="line.244"></a>
+<span class="sourceLineNo">245</span>        try {<a name="line.245"></a>
+<span class="sourceLineNo">246</span>            return WeekFields.of(firstDayOfWeek, minimalDays);<a name="line.246"></a>
+<span class="sourceLineNo">247</span>        } catch (IllegalArgumentException ex) {<a name="line.247"></a>
+<span class="sourceLineNo">248</span>            throw new InvalidObjectException("Invalid WeekFields" + ex.getMessage());<a name="line.248"></a>
+<span class="sourceLineNo">249</span>        }<a name="line.249"></a>
+<span class="sourceLineNo">250</span>    }<a name="line.250"></a>
+<span class="sourceLineNo">251</span><a name="line.251"></a>
+<span class="sourceLineNo">252</span>    //-----------------------------------------------------------------------<a name="line.252"></a>
+<span class="sourceLineNo">253</span>    /**<a name="line.253"></a>
+<span class="sourceLineNo">254</span>     * Gets the first day-of-week.<a name="line.254"></a>
+<span class="sourceLineNo">255</span>     * &lt;p&gt;<a name="line.255"></a>
+<span class="sourceLineNo">256</span>     * The first day-of-week varies by culture.<a name="line.256"></a>
+<span class="sourceLineNo">257</span>     * For example, the US uses Sunday, while France and the ISO-8601 standard use Monday.<a name="line.257"></a>
+<span class="sourceLineNo">258</span>     * This method returns the first day using the standard {@code DayOfWeek} enum.<a name="line.258"></a>
+<span class="sourceLineNo">259</span>     *<a name="line.259"></a>
+<span class="sourceLineNo">260</span>     * @return the first day-of-week, not null<a name="line.260"></a>
+<span class="sourceLineNo">261</span>     */<a name="line.261"></a>
+<span class="sourceLineNo">262</span>    public DayOfWeek getFirstDayOfWeek() {<a name="line.262"></a>
+<span class="sourceLineNo">263</span>        return firstDayOfWeek;<a name="line.263"></a>
+<span class="sourceLineNo">264</span>    }<a name="line.264"></a>
+<span class="sourceLineNo">265</span><a name="line.265"></a>
+<span class="sourceLineNo">266</span>    /**<a name="line.266"></a>
+<span class="sourceLineNo">267</span>     * Gets the minimal number of days in the first week.<a name="line.267"></a>
+<span class="sourceLineNo">268</span>     * &lt;p&gt;<a name="line.268"></a>
+<span class="sourceLineNo">269</span>     * The number of days considered to define the first week of a month or year<a name="line.269"></a>
+<span class="sourceLineNo">270</span>     * varies by culture.<a name="line.270"></a>
+<span class="sourceLineNo">271</span>     * For example, the ISO-8601 requires 4 days (more than half a week) to<a name="line.271"></a>
+<span class="sourceLineNo">272</span>     * be present before counting the first week.<a name="line.272"></a>
+<span class="sourceLineNo">273</span>     *<a name="line.273"></a>
+<span class="sourceLineNo">274</span>     * @return the minimal number of days in the first week of a month or year, from 1 to 7<a name="line.274"></a>
+<span class="sourceLineNo">275</span>     */<a name="line.275"></a>
+<span class="sourceLineNo">276</span>    public int getMinimalDaysInFirstWeek() {<a name="line.276"></a>
+<span class="sourceLineNo">277</span>        return minimalDays;<a name="line.277"></a>
+<span class="sourceLineNo">278</span>    }<a name="line.278"></a>
+<span class="sourceLineNo">279</span><a name="line.279"></a>
+<span class="sourceLineNo">280</span>    //-----------------------------------------------------------------------<a name="line.280"></a>
+<span class="sourceLineNo">281</span>    /**<a name="line.281"></a>
+<span class="sourceLineNo">282</span>     * Returns a field to access the day of week,<a name="line.282"></a>
+<span class="sourceLineNo">283</span>     * computed based on this WeekFields.<a name="line.283"></a>
+<span class="sourceLineNo">284</span>     * &lt;p&gt;<a name="line.284"></a>
+<span class="sourceLineNo">285</span>     * The days of week are numbered from 1 to 7.<a name="line.285"></a>
+<span class="sourceLineNo">286</span>     * Day number 1 is the {@link #getFirstDayOfWeek() first day-of-week}.<a name="line.286"></a>
+<span class="sourceLineNo">287</span>     *<a name="line.287"></a>
+<span class="sourceLineNo">288</span>     * @return the field for day-of-week using this week definition, not null<a name="line.288"></a>
+<span class="sourceLineNo">289</span>     */<a name="line.289"></a>
+<span class="sourceLineNo">290</span>    public TemporalField dayOfWeek() {<a name="line.290"></a>
+<span class="sourceLineNo">291</span>        return dayOfWeek;<a name="line.291"></a>
+<span class="sourceLineNo">292</span>    }<a name="line.292"></a>
+<span class="sourceLineNo">293</span><a name="line.293"></a>
+<span class="sourceLineNo">294</span>    /**<a name="line.294"></a>
+<span class="sourceLineNo">295</span>     * Returns a field to access the week of month,<a name="line.295"></a>
+<span class="sourceLineNo">296</span>     * computed based on this WeekFields.<a name="line.296"></a>
+<span class="sourceLineNo">297</span>     * &lt;p&gt;<a name="line.297"></a>
+<span class="sourceLineNo">298</span>     * This represents concept of the count of weeks within the month where weeks<a name="line.298"></a>
+<span class="sourceLineNo">299</span>     * start on a fixed day-of-week, such as Monday.<a name="line.299"></a>
+<span class="sourceLineNo">300</span>     * This field is typically used with {@link WeekFields#dayOfWeek()}.<a name="line.300"></a>
+<span class="sourceLineNo">301</span>     * &lt;p&gt;<a name="line.301"></a>
+<span class="sourceLineNo">302</span>     * Week one (1) is the week starting on the {@link WeekFields#getFirstDayOfWeek}<a name="line.302"></a>
+<span class="sourceLineNo">303</span>     * where there are at least {@link WeekFields#getMinimalDaysInFirstWeek()} days in the month.<a name="line.303"></a>
+<span class="sourceLineNo">304</span>     * Thus, week one may start up to {@code minDays} days before the start of the month.<a name="line.304"></a>
+<span class="sourceLineNo">305</span>     * If the first week starts after the start of the month then the period before is week zero (0).<a name="line.305"></a>
+<span class="sourceLineNo">306</span>     * &lt;p&gt;<a name="line.306"></a>
+<span class="sourceLineNo">307</span>     * For example:&lt;br&gt;<a name="line.307"></a>
+<span class="sourceLineNo">308</span>     * - if the 1st day of the month is a Monday, week one starts on the 1st and there is no week zero&lt;br&gt;<a name="line.308"></a>
+<span class="sourceLineNo">309</span>     * - if the 2nd day of the month is a Monday, week one starts on the 2nd and the 1st is in week zero&lt;br&gt;<a name="line.309"></a>
+<span class="sourceLineNo">310</span>     * - if the 4th day of the month is a Monday, week one starts on the 4th and the 1st to 3rd is in week zero&lt;br&gt;<a name="line.310"></a>
+<span class="sourceLineNo">311</span>     * - if the 5th day of the month is a Monday, week two starts on the 5th and the 1st to 4th is in week one&lt;br&gt;<a name="line.311"></a>
+<span class="sourceLineNo">312</span>     * &lt;p&gt;<a name="line.312"></a>
+<span class="sourceLineNo">313</span>     * This field can be used with any calendar system.<a name="line.313"></a>
+<span class="sourceLineNo">314</span>     * @return a TemporalField to access the WeekOfMonth, not null<a name="line.314"></a>
+<span class="sourceLineNo">315</span>     */<a name="line.315"></a>
+<span class="sourceLineNo">316</span>    public TemporalField weekOfMonth() {<a name="line.316"></a>
+<span class="sourceLineNo">317</span>        return weekOfMonth;<a name="line.317"></a>
+<span class="sourceLineNo">318</span>    }<a name="line.318"></a>
+<span class="sourceLineNo">319</span><a name="line.319"></a>
+<span class="sourceLineNo">320</span>    /**<a name="line.320"></a>
+<span class="sourceLineNo">321</span>     * Returns a field to access the week of year,<a name="line.321"></a>
+<span class="sourceLineNo">322</span>     * computed based on this WeekFields.<a name="line.322"></a>
+<span class="sourceLineNo">323</span>     * &lt;p&gt;<a name="line.323"></a>
+<span class="sourceLineNo">324</span>     * This represents concept of the count of weeks within the year where weeks<a name="line.324"></a>
+<span class="sourceLineNo">325</span>     * start on a fixed day-of-week, such as Monday.<a name="line.325"></a>
+<span class="sourceLineNo">326</span>     * This field is typically used with {@link WeekFields#dayOfWeek()}.<a name="line.326"></a>
+<span class="sourceLineNo">327</span>     * &lt;p&gt;<a name="line.327"></a>
+<span class="sourceLineNo">328</span>     * Week one(1) is the week starting on the {@link WeekFields#getFirstDayOfWeek}<a name="line.328"></a>
+<span class="sourceLineNo">329</span>     * where there are at least {@link WeekFields#getMinimalDaysInFirstWeek()} days in the month.<a name="line.329"></a>
+<span class="sourceLineNo">330</span>     * Thus, week one may start up to {@code minDays} days before the start of the year.<a name="line.330"></a>
+<span class="sourceLineNo">331</span>     * If the first week starts after the start of the year then the period before is week zero (0).<a name="line.331"></a>
+<span class="sourceLineNo">332</span>     * &lt;p&gt;<a name="line.332"></a>
+<span class="sourceLineNo">333</span>     * For example:&lt;br&gt;<a name="line.333"></a>
+<span class="sourceLineNo">334</span>     * - if the 1st day of the year is a Monday, week one starts on the 1st and there is no week zero&lt;br&gt;<a name="line.334"></a>
+<span class="sourceLineNo">335</span>     * - if the 2nd day of the year is a Monday, week one starts on the 2nd and the 1st is in week zero&lt;br&gt;<a name="line.335"></a>
+<span class="sourceLineNo">336</span>     * - if the 4th day of the year is a Monday, week one starts on the 4th and the 1st to 3rd is in week zero&lt;br&gt;<a name="line.336"></a>
+<span class="sourceLineNo">337</span>     * - if the 5th day of the year is a Monday, week two starts on the 5th and the 1st to 4th is in week one&lt;br&gt;<a name="line.337"></a>
+<span class="sourceLineNo">338</span>     * &lt;p&gt;<a name="line.338"></a>
+<span class="sourceLineNo">339</span>     * This field can be used with any calendar system.<a name="line.339"></a>
+<span class="sourceLineNo">340</span>     * @return a TemporalField to access the WeekOfYear, not null<a name="line.340"></a>
+<span class="sourceLineNo">341</span>     */<a name="line.341"></a>
+<span class="sourceLineNo">342</span>    public TemporalField weekOfYear() {<a name="line.342"></a>
+<span class="sourceLineNo">343</span>        return weekOfYear;<a name="line.343"></a>
+<span class="sourceLineNo">344</span>    }<a name="line.344"></a>
+<span class="sourceLineNo">345</span><a name="line.345"></a>
+<span class="sourceLineNo">346</span>    /**<a name="line.346"></a>
+<span class="sourceLineNo">347</span>     * Checks if these rules are equal to the specified rules.<a name="line.347"></a>
+<span class="sourceLineNo">348</span>     * &lt;p&gt;<a name="line.348"></a>
+<span class="sourceLineNo">349</span>     * The comparison is based on the entire state of the rules, which is<a name="line.349"></a>
+<span class="sourceLineNo">350</span>     * the first day-of-week and minimal days.<a name="line.350"></a>
+<span class="sourceLineNo">351</span>     *<a name="line.351"></a>
+<span class="sourceLineNo">352</span>     * @param object  the other rules to compare to, null returns false<a name="line.352"></a>
+<span class="sourceLineNo">353</span>     * @return true if this is equal to the specified rules<a name="line.353"></a>
+<span class="sourceLineNo">354</span>     */<a name="line.354"></a>
+<span class="sourceLineNo">355</span>    @Override<a name="line.355"></a>
+<span class="sourceLineNo">356</span>    public boolean equals(Object object) {<a name="line.356"></a>
+<span class="sourceLineNo">357</span>        if (this == object) {<a name="line.357"></a>
+<span class="sourceLineNo">358</span>            return true;<a name="line.358"></a>
+<span class="sourceLineNo">359</span>        }<a name="line.359"></a>
+<span class="sourceLineNo">360</span>        if (object instanceof WeekFields) {<a name="line.360"></a>
+<span class="sourceLineNo">361</span>            return hashCode() == object.hashCode();<a name="line.361"></a>
+<span class="sourceLineNo">362</span>        }<a name="line.362"></a>
+<span class="sourceLineNo">363</span>        return false;<a name="line.363"></a>
+<span class="sourceLineNo">364</span>    }<a name="line.364"></a>
+<span class="sourceLineNo">365</span><a name="line.365"></a>
+<span class="sourceLineNo">366</span>    /**<a name="line.366"></a>
+<span class="sourceLineNo">367</span>     * A hash code for these rules.<a name="line.367"></a>
+<span class="sourceLineNo">368</span>     *<a name="line.368"></a>
+<span class="sourceLineNo">369</span>     * @return a suitable hash code<a name="line.369"></a>
+<span class="sourceLineNo">370</span>     */<a name="line.370"></a>
+<span class="sourceLineNo">371</span>    @Override<a name="line.371"></a>
+<span class="sourceLineNo">372</span>    public int hashCode() {<a name="line.372"></a>
+<span class="sourceLineNo">373</span>        return firstDayOfWeek.ordinal() * 7 + minimalDays;<a name="line.373"></a>
+<span class="sourceLineNo">374</span>    }<a name="line.374"></a>
+<span class="sourceLineNo">375</span><a name="line.375"></a>
+<span class="sourceLineNo">376</span>    //-----------------------------------------------------------------------<a name="line.376"></a>
+<span class="sourceLineNo">377</span>    /**<a name="line.377"></a>
+<span class="sourceLineNo">378</span>     * A string representation of this definition.<a name="line.378"></a>
+<span class="sourceLineNo">379</span>     *<a name="line.379"></a>
+<span class="sourceLineNo">380</span>     * @return the string representation, not null<a name="line.380"></a>
+<span class="sourceLineNo">381</span>     */<a name="line.381"></a>
+<span class="sourceLineNo">382</span>    @Override<a name="line.382"></a>
+<span class="sourceLineNo">383</span>    public String toString() {<a name="line.383"></a>
+<span class="sourceLineNo">384</span>        return "WeekFields[" + firstDayOfWeek + ',' + minimalDays + ']';<a name="line.384"></a>
+<span class="sourceLineNo">385</span>    }<a name="line.385"></a>
+<span class="sourceLineNo">386</span><a name="line.386"></a>
+<span class="sourceLineNo">387</span>    //-----------------------------------------------------------------------<a name="line.387"></a>
+<span class="sourceLineNo">388</span>    /**<a name="line.388"></a>
+<span class="sourceLineNo">389</span>     * Field type that computes DayOfWeek, WeekOfMonth, and WeekOfYear<a name="line.389"></a>
+<span class="sourceLineNo">390</span>     * based on a WeekFields.<a name="line.390"></a>
+<span class="sourceLineNo">391</span>     * A separate Field instance is required for each different WeekFields;<a name="line.391"></a>
+<span class="sourceLineNo">392</span>     * combination of start of week and minimum number of days.<a name="line.392"></a>
+<span class="sourceLineNo">393</span>     * Constructors are provided to create fields for DayOfWeek, WeekOfMonth,<a name="line.393"></a>
+<span class="sourceLineNo">394</span>     * and WeekOfYear.<a name="line.394"></a>
+<span class="sourceLineNo">395</span>     */<a name="line.395"></a>
+<span class="sourceLineNo">396</span>    static class ComputedDayOfField implements TemporalField {<a name="line.396"></a>
+<span class="sourceLineNo">397</span><a name="line.397"></a>
+<span class="sourceLineNo">398</span>        /**<a name="line.398"></a>
+<span class="sourceLineNo">399</span>         * Returns a field to access the day of week,<a name="line.399"></a>
+<span class="sourceLineNo">400</span>         * computed based on a WeekFields.<a name="line.400"></a>
+<span class="sourceLineNo">401</span>         * &lt;p&gt;<a name="line.401"></a>
+<span class="sourceLineNo">402</span>         * The WeekDefintion of the first day of the week is used with<a name="line.402"></a>
+<span class="sourceLineNo">403</span>         * the ISO DAY_OF_WEEK field to compute week boundaries.<a name="line.403"></a>
+<span class="sourceLineNo">404</span>         */<a name="line.404"></a>
+<span class="sourceLineNo">405</span>        static ComputedDayOfField ofDayOfWeekField(WeekFields weekDef) {<a name="line.405"></a>
+<span class="sourceLineNo">406</span>            return new ComputedDayOfField("DayOfWeek", weekDef,<a name="line.406"></a>
+<span class="sourceLineNo">407</span>                    ChronoUnit.DAYS, ChronoUnit.WEEKS, DAY_OF_WEEK_RANGE);<a name="line.407"></a>
+<span class="sourceLineNo">408</span>        }<a name="line.408"></a>
+<span class="sourceLineNo">409</span><a name="line.409"></a>
+<span class="sourceLineNo">410</span>        /**<a name="line.410"></a>
+<span class="sourceLineNo">411</span>         * Returns a field to access the week of month,<a name="line.411"></a>
+<span class="sourceLineNo">412</span>         * computed based on a WeekFields.<a name="line.412"></a>
+<span class="sourceLineNo">413</span>         * @see WeekFields#weekOfMonth()<a name="line.413"></a>
+<span class="sourceLineNo">414</span>         */<a name="line.414"></a>
+<span class="sourceLineNo">415</span>        static ComputedDayOfField ofWeekOfMonthField(WeekFields weekDef) {<a name="line.415"></a>
+<span class="sourceLineNo">416</span>            return new ComputedDayOfField("WeekOfMonth", weekDef,<a name="line.416"></a>
+<span class="sourceLineNo">417</span>                    ChronoUnit.WEEKS, ChronoUnit.MONTHS, WEEK_OF_MONTH_RANGE);<a name="line.417"></a>
+<span class="sourceLineNo">418</span>        }<a name="line.418"></a>
+<span class="sourceLineNo">419</span><a name="line.419"></a>
+<span class="sourceLineNo">420</span>        /**<a name="line.420"></a>
+<span class="sourceLineNo">421</span>         * Returns a field to access the week of year,<a name="line.421"></a>
+<span class="sourceLineNo">422</span>         * computed based on a WeekFields.<a name="line.422"></a>
+<span class="sourceLineNo">423</span>         * @see WeekFields#weekOfYear()<a name="line.423"></a>
+<span class="sourceLineNo">424</span>         */<a name="line.424"></a>
+<span class="sourceLineNo">425</span>        static ComputedDayOfField ofWeekOfYearField(WeekFields weekDef) {<a name="line.425"></a>
+<span class="sourceLineNo">426</span>            return new ComputedDayOfField("WeekOfYear", weekDef,<a name="line.426"></a>
+<span class="sourceLineNo">427</span>                    ChronoUnit.WEEKS, ChronoUnit.YEARS, WEEK_OF_YEAR_RANGE);<a name="line.427"></a>
+<span class="sourceLineNo">428</span>        }<a name="line.428"></a>
+<span class="sourceLineNo">429</span>        private final String name;<a name="line.429"></a>
+<span class="sourceLineNo">430</span>        private final WeekFields weekDef;<a name="line.430"></a>
+<span class="sourceLineNo">431</span>        private final TemporalUnit baseUnit;<a name="line.431"></a>
+<span class="sourceLineNo">432</span>        private final TemporalUnit rangeUnit;<a name="line.432"></a>
+<span class="sourceLineNo">433</span>        private final ValueRange range;<a name="line.433"></a>
+<span class="sourceLineNo">434</span><a name="line.434"></a>
+<span class="sourceLineNo">435</span>        private ComputedDayOfField(String name, WeekFields weekDef, TemporalUnit baseUnit, TemporalUnit rangeUnit, ValueRange range) {<a name="line.435"></a>
+<span class="sourceLineNo">436</span>            this.name = name;<a name="line.436"></a>
+<span class="sourceLineNo">437</span>            this.weekDef = weekDef;<a name="line.437"></a>
+<span class="sourceLineNo">438</span>            this.baseUnit = baseUnit;<a name="line.438"></a>
+<span class="sourceLineNo">439</span>            this.rangeUnit = rangeUnit;<a name="line.439"></a>
+<span class="sourceLineNo">440</span>            this.range = range;<a name="line.440"></a>
+<span class="sourceLineNo">441</span>        }<a name="line.441"></a>
+<span class="sourceLineNo">442</span><a name="line.442"></a>
+<span class="sourceLineNo">443</span>        private static final ValueRange DAY_OF_WEEK_RANGE = ValueRange.of(1, 7);<a name="line.443"></a>
+<span class="sourceLineNo">444</span>        private static final ValueRange WEEK_OF_MONTH_RANGE = ValueRange.of(0, 1, 4, 5);<a name="line.444"></a>
+<span class="sourceLineNo">445</span>        private static final ValueRange WEEK_OF_YEAR_RANGE = ValueRange.of(0, 1, 52, 53);<a name="line.445"></a>
+<span class="sourceLineNo">446</span><a name="line.446"></a>
+<span class="sourceLineNo">447</span>        @Override<a name="line.447"></a>
+<span class="sourceLineNo">448</span>        public long doGet(TemporalAccessor temporal) {<a name="line.448"></a>
+<span class="sourceLineNo">449</span>            // Offset the ISO DOW by the start of this week<a name="line.449"></a>
+<span class="sourceLineNo">450</span>            int sow = weekDef.getFirstDayOfWeek().getValue();<a name="line.450"></a>
+<span class="sourceLineNo">451</span>            int isoDow = temporal.get(ChronoField.DAY_OF_WEEK);<a name="line.451"></a>
+<span class="sourceLineNo">452</span>            int dow = Jdk8Methods.floorMod(isoDow - sow, 7) + 1;<a name="line.452"></a>
+<span class="sourceLineNo">453</span><a name="line.453"></a>
+<span class="sourceLineNo">454</span>            if (rangeUnit == ChronoUnit.WEEKS) {<a name="line.454"></a>
+<span class="sourceLineNo">455</span>                return dow;<a name="line.455"></a>
+<span class="sourceLineNo">456</span>            } else if (rangeUnit == ChronoUnit.MONTHS) {<a name="line.456"></a>
+<span class="sourceLineNo">457</span>                int dom = temporal.get(ChronoField.DAY_OF_MONTH);<a name="line.457"></a>
+<span class="sourceLineNo">458</span>                int offset = startOfWeekOffset(dom, dow);<a name="line.458"></a>
+<span class="sourceLineNo">459</span>                return computeWeek(offset, dom);<a name="line.459"></a>
+<span class="sourceLineNo">460</span>            } else if (rangeUnit == ChronoUnit.YEARS) {<a name="line.460"></a>
+<span class="sourceLineNo">461</span>                int doy = temporal.get(ChronoField.DAY_OF_YEAR);<a name="line.461"></a>
+<span class="sourceLineNo">462</span>                int offset = startOfWeekOffset(doy, dow);<a name="line.462"></a>
+<span class="sourceLineNo">463</span>                return computeWeek(offset, doy);<a name="line.463"></a>
+<span class="sourceLineNo">464</span>            } else {<a name="line.464"></a>
+<span class="sourceLineNo">465</span>                throw new IllegalStateException("unreachable");<a name="line.465"></a>
+<span class="sourceLineNo">466</span>            }<a name="line.466"></a>
+<span class="sourceLineNo">467</span>        }<a name="line.467"></a>
+<span class="sourceLineNo">468</span><a name="line.468"></a>
+<span class="sourceLineNo">469</span>        /**<a name="line.469"></a>
+<span class="sourceLineNo">470</span>         * Returns an offset to align week start with a day of month or day of year.<a name="line.470"></a>
+<span class="sourceLineNo">471</span>         *<a name="line.471"></a>
+<span class="sourceLineNo">472</span>         * @param day the day; 1 through infinity<a name="line.472"></a>
+<span class="sourceLineNo">473</span>         * @param dow the day of the week of that day; 1 through 7<a name="line.473"></a>
+<span class="sourceLineNo">474</span>         * @return an offset in days to align a day with the start of the first 'full' week<a name="line.474"></a>
+<span class="sourceLineNo">475</span>         */<a name="line.475"></a>
+<span class="sourceLineNo">476</span>        private int startOfWeekOffset(int day, int dow) {<a name="line.476"></a>
+<span class="sourceLineNo">477</span>            // offset of first day corresponding to the day of week in first 7 days (zero origin)<a name="line.477"></a>
+<span class="sourceLineNo">478</span>            int weekStart = Jdk8Methods.floorMod(day - dow, 7);<a name="line.478"></a>
+<span class="sourceLineNo">479</span>            int offset = -weekStart;<a name="line.479"></a>
+<span class="sourceLineNo">480</span>            if (weekStart + 1 &gt; weekDef.getMinimalDaysInFirstWeek()) {<a name="line.480"></a>
+<span class="sourceLineNo">481</span>                // The previous week has the minimum days in the current month to be a 'week'<a name="line.481"></a>
+<span class="sourceLineNo">482</span>                offset = 7 - weekStart;<a name="line.482"></a>
+<span class="sourceLineNo">483</span>            }<a name="line.483"></a>
+<span class="sourceLineNo">484</span>            return offset;<a name="line.484"></a>
+<span class="sourceLineNo">485</span>        }<a name="line.485"></a>
+<span class="sourceLineNo">486</span><a name="line.486"></a>
+<span class="sourceLineNo">487</span>        /**<a name="line.487"></a>
+<span class="sourceLineNo">488</span>         * Returns the week number computed from the reference day and reference dayOfWeek.<a name="line.488"></a>
+<span class="sourceLineNo">489</span>         *<a name="line.489"></a>
+<span class="sourceLineNo">490</span>         * @param offset the offset to align a date with the start of week<a name="line.490"></a>
+<span class="sourceLineNo">491</span>         *     from {@link #startOfWeekOffset}.<a name="line.491"></a>
+<span class="sourceLineNo">492</span>         * @param day  the day for which to compute the week number<a name="line.492"></a>
+<span class="sourceLineNo">493</span>         * @return the week number where zero is used for a partial week and 1 for the first full week<a name="line.493"></a>
+<span class="sourceLineNo">494</span>         */<a name="line.494"></a>
+<span class="sourceLineNo">495</span>        private int computeWeek(int offset, int day) {<a name="line.495"></a>
+<span class="sourceLineNo">496</span>            return ((7 + offset + (day - 1)) / 7);<a name="line.496"></a>
+<span class="sourceLineNo">497</span>        }<a name="line.497"></a>
+<span class="sourceLineNo">498</span><a name="line.498"></a>
+<span class="sourceLineNo">499</span>        @Override<a name="line.499"></a>
+<span class="sourceLineNo">500</span>        public &lt;R extends Temporal&gt; R doWith(R temporal, long newValue) {<a name="line.500"></a>
+<span class="sourceLineNo">501</span>            // Check the new value and get the old value of the field<a name="line.501"></a>
+<span class="sourceLineNo">502</span>            int newVal = range.checkValidIntValue(newValue, this);<a name="line.502"></a>
+<span class="sourceLineNo">503</span>            int currentVal = temporal.get(this);<a name="line.503"></a>
+<span class="sourceLineNo">504</span>            if (newVal == currentVal) {<a name="line.504"></a>
+<span class="sourceLineNo">505</span>                return temporal;<a name="line.505"></a>
+<span class="sourceLineNo">506</span>            }<a name="line.506"></a>
+<span class="sourceLineNo">507</span>            // Compute the difference and add that using the base using of the field<a name="line.507"></a>
+<span class="sourceLineNo">508</span>            int delta = newVal - currentVal;<a name="line.508"></a>
+<span class="sourceLineNo">509</span>            return (R) temporal.plus(delta, baseUnit);<a name="line.509"></a>
+<span class="sourceLineNo">510</span>        }<a name="line.510"></a>
+<span class="sourceLineNo">511</span><a name="line.511"></a>
+<span class="sourceLineNo">512</span>        @SuppressWarnings("rawtypes")<a name="line.512"></a>
+<span class="sourceLineNo">513</span>        @Override<a name="line.513"></a>
+<span class="sourceLineNo">514</span>        public boolean resolve(DateTimeBuilder builder, long value) {<a name="line.514"></a>
+<span class="sourceLineNo">515</span>            int newValue = range.checkValidIntValue(value, this);<a name="line.515"></a>
+<span class="sourceLineNo">516</span>            // DOW and YEAR are necessary for all fields; Chrono defaults to ISO if not present<a name="line.516"></a>
+<span class="sourceLineNo">517</span>            int sow = weekDef.getFirstDayOfWeek().getValue();<a name="line.517"></a>
+<span class="sourceLineNo">518</span>            int dow = builder.get(weekDef.dayOfWeek());<a name="line.518"></a>
+<span class="sourceLineNo">519</span>            int year = builder.get(ChronoField.YEAR);<a name="line.519"></a>
+<span class="sourceLineNo">520</span>            Chrono chrono = Chrono.from(builder);<a name="line.520"></a>
+<span class="sourceLineNo">521</span><a name="line.521"></a>
+<span class="sourceLineNo">522</span>            // The WOM and WOY fields are the critical values<a name="line.522"></a>
+<span class="sourceLineNo">523</span>            if (rangeUnit == ChronoUnit.MONTHS) {<a name="line.523"></a>
+<span class="sourceLineNo">524</span>                // Process WOM value by combining with DOW and MONTH, YEAR<a name="line.524"></a>
+<span class="sourceLineNo">525</span>                int month = builder.get(ChronoField.MONTH_OF_YEAR);<a name="line.525"></a>
+<span class="sourceLineNo">526</span>                ChronoLocalDate cd = chrono.date(year, month, 1);<a name="line.526"></a>
+<span class="sourceLineNo">527</span>                int offset = startOfWeekOffset(1, cd.get(weekDef.dayOfWeek()));<a name="line.527"></a>
+<span class="sourceLineNo">528</span>                offset += dow - 1;    // offset to desired day of week<a name="line.528"></a>
+<span class="sourceLineNo">529</span>                offset += 7 * (newValue - 1);    // offset by week number<a name="line.529"></a>
+<span class="sourceLineNo">530</span>                ChronoLocalDate result = cd.plus(offset, ChronoUnit.DAYS);<a name="line.530"></a>
+<span class="sourceLineNo">531</span>                builder.addFieldValue(ChronoField.DAY_OF_MONTH, result.get(ChronoField.DAY_OF_MONTH));<a name="line.531"></a>
+<span class="sourceLineNo">532</span>                builder.removeFieldValue(this);<a name="line.532"></a>
+<span class="sourceLineNo">533</span>                builder.removeFieldValue(weekDef.dayOfWeek());<a name="line.533"></a>
+<span class="sourceLineNo">534</span>                return true;<a name="line.534"></a>
+<span class="sourceLineNo">535</span>            } else if (rangeUnit == ChronoUnit.YEARS) {<a name="line.535"></a>
+<span class="sourceLineNo">536</span>                // Process WOY<a name="line.536"></a>
+<span class="sourceLineNo">537</span>                ChronoLocalDate cd = chrono.date(year, 1, 1);<a name="line.537"></a>
+<span class="sourceLineNo">538</span>                int offset = startOfWeekOffset(1, cd.get(weekDef.dayOfWeek()));<a name="line.538"></a>
+<span class="sourceLineNo">539</span>                offset += dow - 1;    // offset to desired day of week<a name="line.539"></a>
+<span class="sourceLineNo">540</span>                offset += 7 * (newValue - 1);    // offset by week number<a name="line.540"></a>
+<span class="sourceLineNo">541</span>                ChronoLocalDate result = cd.plus(offset, ChronoUnit.DAYS);<a name="line.541"></a>
+<span class="sourceLineNo">542</span>                builder.addFieldValue(ChronoField.DAY_OF_MONTH, result.get(ChronoField.DAY_OF_MONTH));<a name="line.542"></a>
+<span class="sourceLineNo">543</span>                builder.addFieldValue(ChronoField.MONTH_OF_YEAR, result.get(ChronoField.MONTH_OF_YEAR));<a name="line.543"></a>
+<span class="sourceLineNo">544</span>                builder.removeFieldValue(this);<a name="line.544"></a>
+<span class="sourceLineNo">545</span>                builder.removeFieldValue(weekDef.dayOfWeek());<a name="line.545"></a>
+<span class="sourceLineNo">546</span>                return true;<a name="line.546"></a>
+<span class="sourceLineNo">547</span>            } else {<a name="line.547"></a>
+<span class="sourceLineNo">548</span>                // ignore DOW of WEEK field; the value will be processed by WOM or WOY<a name="line.548"></a>
+<span class="sourceLineNo">549</span>                int isoDow = Jdk8Methods.floorMod((sow - 1) + (dow - 1), 7) + 1;<a name="line.549"></a>
+<span class="sourceLineNo">550</span>                builder.addFieldValue(ChronoField.DAY_OF_WEEK, isoDow);<a name="line.550"></a>
+<span class="sourceLineNo">551</span>                // Not removed, the week-of-xxx fields need this value<a name="line.551"></a>
+<span class="sourceLineNo">552</span>                return true;<a name="line.552"></a>
+<span class="sourceLineNo">553</span>            }<a name="line.553"></a>
+<span class="sourceLineNo">554</span>        }<a name="line.554"></a>
+<span class="sourceLineNo">555</span><a name="line.555"></a>
+<span class="sourceLineNo">556</span>        //-----------------------------------------------------------------------<a name="line.556"></a>
+<span class="sourceLineNo">557</span>        @Override<a name="line.557"></a>
+<span class="sourceLineNo">558</span>        public String getName() {<a name="line.558"></a>
+<span class="sourceLineNo">559</span>            return name;<a name="line.559"></a>
+<span class="sourceLineNo">560</span>        }<a name="line.560"></a>
+<span class="sourceLineNo">561</span><a name="line.561"></a>
+<span class="sourceLineNo">562</span>        @Override<a name="line.562"></a>
+<span class="sourceLineNo">563</span>        public TemporalUnit getBaseUnit() {<a name="line.563"></a>
+<span class="sourceLineNo">564</span>            return baseUnit;<a name="line.564"></a>
+<span class="sourceLineNo">565</span>        }<a name="line.565"></a>
+<span class="sourceLineNo">566</span><a name="line.566"></a>
+<span class="sourceLineNo">567</span>        @Override<a name="line.567"></a>
+<span class="sourceLineNo">568</span>        public TemporalUnit getRangeUnit() {<a name="line.568"></a>
+<span class="sourceLineNo">569</span>            return rangeUnit;<a name="line.569"></a>
+<span class="sourceLineNo">570</span>        }<a name="line.570"></a>
+<span class="sourceLineNo">571</span><a name="line.571"></a>
+<span class="sourceLineNo">572</span>        @Override<a name="line.572"></a>
+<span class="sourceLineNo">573</span>        public ValueRange range() {<a name="line.573"></a>
+<span class="sourceLineNo">574</span>            return range;<a name="line.574"></a>
+<span class="sourceLineNo">575</span>        }<a name="line.575"></a>
+<span class="sourceLineNo">576</span><a name="line.576"></a>
+<span class="sourceLineNo">577</span>        //-------------------------------------------------------------------------<a name="line.577"></a>
+<span class="sourceLineNo">578</span>        @Override<a name="line.578"></a>
+<span class="sourceLineNo">579</span>        public int compare(TemporalAccessor temporal1, TemporalAccessor temporal2) {<a name="line.579"></a>
+<span class="sourceLineNo">580</span>            return Long.compare(temporal1.getLong(this), temporal2.getLong(this));<a name="line.580"></a>
+<span class="sourceLineNo">581</span>        }<a name="line.581"></a>
+<span class="sourceLineNo">582</span><a name="line.582"></a>
+<span class="sourceLineNo">583</span>        //-----------------------------------------------------------------------<a name="line.583"></a>
+<span class="sourceLineNo">584</span>        @Override<a name="line.584"></a>
+<span class="sourceLineNo">585</span>        public boolean doIsSupported(TemporalAccessor temporal) {<a name="line.585"></a>
+<span class="sourceLineNo">586</span>            if (temporal.isSupported(ChronoField.DAY_OF_WEEK)) {<a name="line.586"></a>
+<span class="sourceLineNo">587</span>                if (rangeUnit == ChronoUnit.WEEKS) {<a name="line.587"></a>
+<span class="sourceLineNo">588</span>                    return true;<a name="line.588"></a>
+<span class="sourceLineNo">589</span>                } else if (rangeUnit == ChronoUnit.MONTHS) {<a name="line.589"></a>
+<span class="sourceLineNo">590</span>                    return temporal.isSupported(ChronoField.DAY_OF_MONTH);<a name="line.590"></a>
+<span class="sourceLineNo">591</span>                } else if (rangeUnit == ChronoUnit.YEARS) {<a name="line.591"></a>
+<span class="sourceLineNo">592</span>                    return temporal.isSupported(ChronoField.DAY_OF_YEAR);<a name="line.592"></a>
+<span class="sourceLineNo">593</span>                }<a name="line.593"></a>
+<span class="sourceLineNo">594</span>            }<a name="line.594"></a>
+<span class="sourceLineNo">595</span>            return false;<a name="line.595"></a>
+<span class="sourceLineNo">596</span>        }<a name="line.596"></a>
+<span class="sourceLineNo">597</span><a name="line.597"></a>
+<span class="sourceLineNo">598</span>        @Override<a name="line.598"></a>
+<span class="sourceLineNo">599</span>        public ValueRange doRange(TemporalAccessor temporal) {<a name="line.599"></a>
+<span class="sourceLineNo">600</span>            if (rangeUnit == ChronoUnit.WEEKS) {<a name="line.600"></a>
+<span class="sourceLineNo">601</span>                return range;<a name="line.601"></a>
+<span class="sourceLineNo">602</span>            }<a name="line.602"></a>
+<span class="sourceLineNo">603</span><a name="line.603"></a>
+<span class="sourceLineNo">604</span>            TemporalField field = null;<a name="line.604"></a>
+<span class="sourceLineNo">605</span>            if (rangeUnit == ChronoUnit.MONTHS) {<a name="line.605"></a>
+<span class="sourceLineNo">606</span>                field = ChronoField.DAY_OF_MONTH;<a name="line.606"></a>
+<span class="sourceLineNo">607</span>            } else if (rangeUnit == ChronoUnit.YEARS) {<a name="line.607"></a>
+<span class="sourceLineNo">608</span>                field = ChronoField.DAY_OF_YEAR;<a name="line.608"></a>
+<span class="sourceLineNo">609</span>            } else {<a name="line.609"></a>
+<span class="sourceLineNo">610</span>                throw new IllegalStateException("unreachable");<a name="line.610"></a>
+<span class="sourceLineNo">611</span>            }<a name="line.611"></a>
+<span class="sourceLineNo">612</span><a name="line.612"></a>
+<span class="sourceLineNo">613</span>            // Offset the ISO DOW by the start of this week<a name="line.613"></a>
+<span class="sourceLineNo">614</span>            int sow = weekDef.getFirstDayOfWeek().getValue();<a name="line.614"></a>
+<span class="sourceLineNo">615</span>            int isoDow = temporal.get(ChronoField.DAY_OF_WEEK);<a name="line.615"></a>
+<span class="sourceLineNo">616</span>            int dow = Jdk8Methods.floorMod(isoDow - sow, 7) + 1;<a name="line.616"></a>
+<span class="sourceLineNo">617</span><a name="line.617"></a>
+<span class="sourceLineNo">618</span>            int offset = startOfWeekOffset(temporal.get(field), dow);<a name="line.618"></a>
+<span class="sourceLineNo">619</span>            ValueRange fieldRange = temporal.range(field);<a name="line.619"></a>
+<span class="sourceLineNo">620</span>            return ValueRange.of(computeWeek(offset, (int) fieldRange.getMinimum()),<a name="line.620"></a>
+<span class="sourceLineNo">621</span>                    computeWeek(offset, (int) fieldRange.getMaximum()));<a name="line.621"></a>
+<span class="sourceLineNo">622</span>        }<a name="line.622"></a>
+<span class="sourceLineNo">623</span><a name="line.623"></a>
+<span class="sourceLineNo">624</span>        //-----------------------------------------------------------------------<a name="line.624"></a>
+<span class="sourceLineNo">625</span>        @Override<a name="line.625"></a>
+<span class="sourceLineNo">626</span>        public String toString() {<a name="line.626"></a>
+<span class="sourceLineNo">627</span>            return getName() + "[" + weekDef.toString() + "]";<a name="line.627"></a>
+<span class="sourceLineNo">628</span>        }<a name="line.628"></a>
+<span class="sourceLineNo">629</span>    }<a name="line.629"></a>
+<span class="sourceLineNo">630</span>}<a name="line.630"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>
