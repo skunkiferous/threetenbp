@@ -93,7 +93,7 @@
 <span class="sourceLineNo">085</span>     */<a name="line.85"></a>
 <span class="sourceLineNo">086</span>    private static final ConcurrentMap&lt;String, ZoneRulesProvider&gt; ZONES = new ConcurrentHashMap&lt;&gt;(512, 0.75f, 2);<a name="line.86"></a>
 <span class="sourceLineNo">087</span>    static {<a name="line.87"></a>
-<span class="sourceLineNo">088</span>        ServiceLoader&lt;ZoneRulesProvider&gt; sl = ServiceLoader.load(ZoneRulesProvider.class, ClassLoader.getSystemClassLoader());<a name="line.88"></a>
+<span class="sourceLineNo">088</span>        ServiceLoader&lt;ZoneRulesProvider&gt; sl = ServiceLoader.load(ZoneRulesProvider.class, ZoneRulesProvider.class.getClassLoader());<a name="line.88"></a>
 <span class="sourceLineNo">089</span>        List&lt;ZoneRulesProvider&gt; loaded = new ArrayList&lt;&gt;();<a name="line.89"></a>
 <span class="sourceLineNo">090</span>        Iterator&lt;ZoneRulesProvider&gt; it = sl.iterator();<a name="line.90"></a>
 <span class="sourceLineNo">091</span>        while (it.hasNext()) {<a name="line.91"></a>

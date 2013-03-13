@@ -130,8 +130,8 @@
 <span class="sourceLineNo">122</span>     * &lt;p&gt;<a name="line.122"></a>
 <span class="sourceLineNo">123</span>     * This maps as follows:<a name="line.123"></a>
 <span class="sourceLineNo">124</span>     * &lt;p&gt;&lt;ul&gt;<a name="line.124"></a>
-<span class="sourceLineNo">125</span>     * &lt;li&gt;EST - America/Indianapolis&lt;/li&gt;<a name="line.125"></a>
-<span class="sourceLineNo">126</span>     * &lt;li&gt;MST - America/Phoenix&lt;/li&gt;<a name="line.126"></a>
+<span class="sourceLineNo">125</span>     * &lt;li&gt;EST - America/New_York&lt;/li&gt;<a name="line.125"></a>
+<span class="sourceLineNo">126</span>     * &lt;li&gt;MST - America/Denver&lt;/li&gt;<a name="line.126"></a>
 <span class="sourceLineNo">127</span>     * &lt;li&gt;HST - Pacific/Honolulu&lt;/li&gt;<a name="line.127"></a>
 <span class="sourceLineNo">128</span>     * &lt;li&gt;ACT - Australia/Darwin&lt;/li&gt;<a name="line.128"></a>
 <span class="sourceLineNo">129</span>     * &lt;li&gt;AET - Australia/Sydney&lt;/li&gt;<a name="line.129"></a>
@@ -227,8 +227,8 @@
 <span class="sourceLineNo">219</span>        base.put("SST", "Pacific/Guadalcanal");<a name="line.219"></a>
 <span class="sourceLineNo">220</span>        base.put("VST", "Asia/Ho_Chi_Minh");<a name="line.220"></a>
 <span class="sourceLineNo">221</span>        Map&lt;String, String&gt; pre = new HashMap&lt;&gt;(base);<a name="line.221"></a>
-<span class="sourceLineNo">222</span>        pre.put("EST", "America/Indianapolis");<a name="line.222"></a>
-<span class="sourceLineNo">223</span>        pre.put("MST", "America/Phoenix");<a name="line.223"></a>
+<span class="sourceLineNo">222</span>        pre.put("EST", "America/New_York");<a name="line.222"></a>
+<span class="sourceLineNo">223</span>        pre.put("MST", "America/Denver");<a name="line.223"></a>
 <span class="sourceLineNo">224</span>        pre.put("HST", "Pacific/Honolulu");<a name="line.224"></a>
 <span class="sourceLineNo">225</span>        OLD_IDS_PRE_2005 = Collections.unmodifiableMap(pre);<a name="line.225"></a>
 <span class="sourceLineNo">226</span>        Map&lt;String, String&gt; post = new HashMap&lt;&gt;(base);<a name="line.226"></a>
@@ -413,8 +413,8 @@
 <span class="sourceLineNo">405</span>     * @param locale  the locale to use, not null<a name="line.405"></a>
 <span class="sourceLineNo">406</span>     * @return the text value of the zone, not null<a name="line.406"></a>
 <span class="sourceLineNo">407</span>     */<a name="line.407"></a>
-<span class="sourceLineNo">408</span>    public String getText(TextStyle style, Locale locale) {<a name="line.408"></a>
-<span class="sourceLineNo">409</span>        return new DateTimeFormatterBuilder().appendZoneText(style).toFormatter(locale).print(new DefaultInterfaceTemporalAccessor() {<a name="line.409"></a>
+<span class="sourceLineNo">408</span>    public String getDisplayName(TextStyle style, Locale locale) {<a name="line.408"></a>
+<span class="sourceLineNo">409</span>        return new DateTimeFormatterBuilder().appendZoneText(style).toFormatter(locale).format(new DefaultInterfaceTemporalAccessor() {<a name="line.409"></a>
 <span class="sourceLineNo">410</span>            @Override<a name="line.410"></a>
 <span class="sourceLineNo">411</span>            public boolean isSupported(TemporalField field) {<a name="line.411"></a>
 <span class="sourceLineNo">412</span>                return false;<a name="line.412"></a>

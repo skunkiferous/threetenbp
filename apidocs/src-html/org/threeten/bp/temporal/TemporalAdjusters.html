@@ -319,164 +319,163 @@
 <span class="sourceLineNo">311</span>     * It uses the {@code DAY_OF_WEEK} and {@code DAY_OF_MONTH} fields<a name="line.311"></a>
 <span class="sourceLineNo">312</span>     * and the {@code DAYS} unit, and assumes a seven day week.<a name="line.312"></a>
 <span class="sourceLineNo">313</span>     *<a name="line.313"></a>
-<span class="sourceLineNo">314</span>     * @param ordinal  the week within the month, unbound but typically from -5 to 5<a name="line.314"></a>
+<span class="sourceLineNo">314</span>     * @param ordinal  the week within the month, unbounded but typically from -5 to 5<a name="line.314"></a>
 <span class="sourceLineNo">315</span>     * @param dayOfWeek  the day-of-week, not null<a name="line.315"></a>
 <span class="sourceLineNo">316</span>     * @return the day-of-week in month adjuster, not null<a name="line.316"></a>
-<span class="sourceLineNo">317</span>     * @throws IllegalArgumentException if the ordinal is invalid<a name="line.317"></a>
-<span class="sourceLineNo">318</span>     */<a name="line.318"></a>
-<span class="sourceLineNo">319</span>    public static TemporalAdjuster dayOfWeekInMonth(int ordinal, DayOfWeek dayOfWeek) {<a name="line.319"></a>
-<span class="sourceLineNo">320</span>        Objects.requireNonNull(dayOfWeek, "dayOfWeek");<a name="line.320"></a>
-<span class="sourceLineNo">321</span>        return new DayOfWeekInMonth(ordinal, dayOfWeek);<a name="line.321"></a>
-<span class="sourceLineNo">322</span>    }<a name="line.322"></a>
-<span class="sourceLineNo">323</span><a name="line.323"></a>
-<span class="sourceLineNo">324</span>    /**<a name="line.324"></a>
-<span class="sourceLineNo">325</span>     * Class implementing day-of-week in month adjuster.<a name="line.325"></a>
-<span class="sourceLineNo">326</span>     */<a name="line.326"></a>
-<span class="sourceLineNo">327</span>    private static final class DayOfWeekInMonth implements TemporalAdjuster {<a name="line.327"></a>
-<span class="sourceLineNo">328</span>        /** The ordinal. */<a name="line.328"></a>
-<span class="sourceLineNo">329</span>        private final int ordinal;<a name="line.329"></a>
-<span class="sourceLineNo">330</span>        /** The day-of-week value, from 1 to 7. */<a name="line.330"></a>
-<span class="sourceLineNo">331</span>        private final int dowValue;<a name="line.331"></a>
-<span class="sourceLineNo">332</span><a name="line.332"></a>
-<span class="sourceLineNo">333</span>        private DayOfWeekInMonth(int ordinal, DayOfWeek dow) {<a name="line.333"></a>
-<span class="sourceLineNo">334</span>            super();<a name="line.334"></a>
-<span class="sourceLineNo">335</span>            this.ordinal = ordinal;<a name="line.335"></a>
-<span class="sourceLineNo">336</span>            this.dowValue = dow.getValue();<a name="line.336"></a>
-<span class="sourceLineNo">337</span>        }<a name="line.337"></a>
-<span class="sourceLineNo">338</span>        @Override<a name="line.338"></a>
-<span class="sourceLineNo">339</span>        public Temporal adjustInto(Temporal temporal) {<a name="line.339"></a>
-<span class="sourceLineNo">340</span>            if (ordinal &gt;= 0) {<a name="line.340"></a>
-<span class="sourceLineNo">341</span>                Temporal temp = temporal.with(DAY_OF_MONTH, 1);<a name="line.341"></a>
-<span class="sourceLineNo">342</span>                int curDow = temp.get(DAY_OF_WEEK);<a name="line.342"></a>
-<span class="sourceLineNo">343</span>                int dowDiff = (dowValue - curDow + 7) % 7;<a name="line.343"></a>
-<span class="sourceLineNo">344</span>                dowDiff += (ordinal - 1L) * 7L;  // safe from overflow<a name="line.344"></a>
-<span class="sourceLineNo">345</span>                return temp.plus(dowDiff, DAYS);<a name="line.345"></a>
-<span class="sourceLineNo">346</span>            } else {<a name="line.346"></a>
-<span class="sourceLineNo">347</span>                Temporal temp = temporal.with(DAY_OF_MONTH, temporal.range(DAY_OF_MONTH).getMaximum());<a name="line.347"></a>
-<span class="sourceLineNo">348</span>                int curDow = temp.get(DAY_OF_WEEK);<a name="line.348"></a>
-<span class="sourceLineNo">349</span>                int daysDiff = dowValue - curDow;<a name="line.349"></a>
-<span class="sourceLineNo">350</span>                daysDiff = (daysDiff == 0 ? 0 : (daysDiff &gt; 0 ? daysDiff - 7 : daysDiff));<a name="line.350"></a>
-<span class="sourceLineNo">351</span>                daysDiff -= (-ordinal - 1L) * 7L;  // safe from overflow<a name="line.351"></a>
-<span class="sourceLineNo">352</span>                return temp.plus(daysDiff, DAYS);<a name="line.352"></a>
-<span class="sourceLineNo">353</span>            }<a name="line.353"></a>
-<span class="sourceLineNo">354</span>        }<a name="line.354"></a>
-<span class="sourceLineNo">355</span>    }<a name="line.355"></a>
-<span class="sourceLineNo">356</span><a name="line.356"></a>
-<span class="sourceLineNo">357</span>    //-----------------------------------------------------------------------<a name="line.357"></a>
-<span class="sourceLineNo">358</span>    /**<a name="line.358"></a>
-<span class="sourceLineNo">359</span>     * Returns the next day-of-week adjuster, which adjusts the date to the<a name="line.359"></a>
-<span class="sourceLineNo">360</span>     * first occurrence of the specified day-of-week after the date being adjusted.<a name="line.360"></a>
-<span class="sourceLineNo">361</span>     * &lt;p&gt;<a name="line.361"></a>
-<span class="sourceLineNo">362</span>     * The ISO calendar system behaves as follows:&lt;br&gt;<a name="line.362"></a>
-<span class="sourceLineNo">363</span>     * The input 2011-01-15 (a Saturday) for parameter (MONDAY) will return 2011-01-17 (two days later).&lt;br&gt;<a name="line.363"></a>
-<span class="sourceLineNo">364</span>     * The input 2011-01-15 (a Saturday) for parameter (WEDNESDAY) will return 2011-01-19 (four days later).&lt;br&gt;<a name="line.364"></a>
-<span class="sourceLineNo">365</span>     * The input 2011-01-15 (a Saturday) for parameter (SATURDAY) will return 2011-01-22 (seven days later).<a name="line.365"></a>
-<span class="sourceLineNo">366</span>     * &lt;p&gt;<a name="line.366"></a>
-<span class="sourceLineNo">367</span>     * The behavior is suitable for use with most calendar systems.<a name="line.367"></a>
-<span class="sourceLineNo">368</span>     * It uses the {@code DAY_OF_WEEK} field and the {@code DAYS} unit,<a name="line.368"></a>
-<span class="sourceLineNo">369</span>     * and assumes a seven day week.<a name="line.369"></a>
-<span class="sourceLineNo">370</span>     *<a name="line.370"></a>
-<span class="sourceLineNo">371</span>     * @param dayOfWeek  the day-of-week to move the date to, not null<a name="line.371"></a>
-<span class="sourceLineNo">372</span>     * @return the next day-of-week adjuster, not null<a name="line.372"></a>
-<span class="sourceLineNo">373</span>     */<a name="line.373"></a>
-<span class="sourceLineNo">374</span>    public static TemporalAdjuster next(DayOfWeek dayOfWeek) {<a name="line.374"></a>
-<span class="sourceLineNo">375</span>        return new RelativeDayOfWeek(2, dayOfWeek);<a name="line.375"></a>
-<span class="sourceLineNo">376</span>    }<a name="line.376"></a>
-<span class="sourceLineNo">377</span><a name="line.377"></a>
-<span class="sourceLineNo">378</span>    /**<a name="line.378"></a>
-<span class="sourceLineNo">379</span>     * Returns the next-or-same day-of-week adjuster, which adjusts the date to the<a name="line.379"></a>
-<span class="sourceLineNo">380</span>     * first occurrence of the specified day-of-week after the date being adjusted<a name="line.380"></a>
-<span class="sourceLineNo">381</span>     * unless it is already on that day in which case the same object is returned.<a name="line.381"></a>
-<span class="sourceLineNo">382</span>     * &lt;p&gt;<a name="line.382"></a>
-<span class="sourceLineNo">383</span>     * The ISO calendar system behaves as follows:&lt;br&gt;<a name="line.383"></a>
-<span class="sourceLineNo">384</span>     * The input 2011-01-15 (a Saturday) for parameter (MONDAY) will return 2011-01-17 (two days later).&lt;br&gt;<a name="line.384"></a>
-<span class="sourceLineNo">385</span>     * The input 2011-01-15 (a Saturday) for parameter (WEDNESDAY) will return 2011-01-19 (four days later).&lt;br&gt;<a name="line.385"></a>
-<span class="sourceLineNo">386</span>     * The input 2011-01-15 (a Saturday) for parameter (SATURDAY) will return 2011-01-15 (same as input).<a name="line.386"></a>
-<span class="sourceLineNo">387</span>     * &lt;p&gt;<a name="line.387"></a>
-<span class="sourceLineNo">388</span>     * The behavior is suitable for use with most calendar systems.<a name="line.388"></a>
-<span class="sourceLineNo">389</span>     * It uses the {@code DAY_OF_WEEK} field and the {@code DAYS} unit,<a name="line.389"></a>
-<span class="sourceLineNo">390</span>     * and assumes a seven day week.<a name="line.390"></a>
-<span class="sourceLineNo">391</span>     *<a name="line.391"></a>
-<span class="sourceLineNo">392</span>     * @param dayOfWeek  the day-of-week to check for or move the date to, not null<a name="line.392"></a>
-<span class="sourceLineNo">393</span>     * @return the next-or-same day-of-week adjuster, not null<a name="line.393"></a>
-<span class="sourceLineNo">394</span>     */<a name="line.394"></a>
-<span class="sourceLineNo">395</span>    public static TemporalAdjuster nextOrSame(DayOfWeek dayOfWeek) {<a name="line.395"></a>
-<span class="sourceLineNo">396</span>        return new RelativeDayOfWeek(0, dayOfWeek);<a name="line.396"></a>
-<span class="sourceLineNo">397</span>    }<a name="line.397"></a>
-<span class="sourceLineNo">398</span><a name="line.398"></a>
-<span class="sourceLineNo">399</span>    /**<a name="line.399"></a>
-<span class="sourceLineNo">400</span>     * Returns the previous day-of-week adjuster, which adjusts the date to the<a name="line.400"></a>
-<span class="sourceLineNo">401</span>     * first occurrence of the specified day-of-week before the date being adjusted.<a name="line.401"></a>
-<span class="sourceLineNo">402</span>     * &lt;p&gt;<a name="line.402"></a>
-<span class="sourceLineNo">403</span>     * The ISO calendar system behaves as follows:&lt;br&gt;<a name="line.403"></a>
-<span class="sourceLineNo">404</span>     * The input 2011-01-15 (a Saturday) for parameter (MONDAY) will return 2011-01-10 (five days earlier).&lt;br&gt;<a name="line.404"></a>
-<span class="sourceLineNo">405</span>     * The input 2011-01-15 (a Saturday) for parameter (WEDNESDAY) will return 2011-01-12 (three days earlier).&lt;br&gt;<a name="line.405"></a>
-<span class="sourceLineNo">406</span>     * The input 2011-01-15 (a Saturday) for parameter (SATURDAY) will return 2011-01-08 (seven days earlier).<a name="line.406"></a>
-<span class="sourceLineNo">407</span>     * &lt;p&gt;<a name="line.407"></a>
-<span class="sourceLineNo">408</span>     * The behavior is suitable for use with most calendar systems.<a name="line.408"></a>
-<span class="sourceLineNo">409</span>     * It uses the {@code DAY_OF_WEEK} field and the {@code DAYS} unit,<a name="line.409"></a>
-<span class="sourceLineNo">410</span>     * and assumes a seven day week.<a name="line.410"></a>
-<span class="sourceLineNo">411</span>     *<a name="line.411"></a>
-<span class="sourceLineNo">412</span>     * @param dayOfWeek  the day-of-week to move the date to, not null<a name="line.412"></a>
-<span class="sourceLineNo">413</span>     * @return the previous day-of-week adjuster, not null<a name="line.413"></a>
-<span class="sourceLineNo">414</span>     */<a name="line.414"></a>
-<span class="sourceLineNo">415</span>    public static TemporalAdjuster previous(DayOfWeek dayOfWeek) {<a name="line.415"></a>
-<span class="sourceLineNo">416</span>        return new RelativeDayOfWeek(3, dayOfWeek);<a name="line.416"></a>
-<span class="sourceLineNo">417</span>    }<a name="line.417"></a>
-<span class="sourceLineNo">418</span><a name="line.418"></a>
-<span class="sourceLineNo">419</span>    /**<a name="line.419"></a>
-<span class="sourceLineNo">420</span>     * Returns the previous-or-same day-of-week adjuster, which adjusts the date to the<a name="line.420"></a>
-<span class="sourceLineNo">421</span>     * first occurrence of the specified day-of-week before the date being adjusted<a name="line.421"></a>
-<span class="sourceLineNo">422</span>     * unless it is already on that day in which case the same object is returned.<a name="line.422"></a>
-<span class="sourceLineNo">423</span>     * &lt;p&gt;<a name="line.423"></a>
-<span class="sourceLineNo">424</span>     * The ISO calendar system behaves as follows:&lt;br&gt;<a name="line.424"></a>
-<span class="sourceLineNo">425</span>     * The input 2011-01-15 (a Saturday) for parameter (MONDAY) will return 2011-01-10 (five days earlier).&lt;br&gt;<a name="line.425"></a>
-<span class="sourceLineNo">426</span>     * The input 2011-01-15 (a Saturday) for parameter (WEDNESDAY) will return 2011-01-12 (three days earlier).&lt;br&gt;<a name="line.426"></a>
-<span class="sourceLineNo">427</span>     * The input 2011-01-15 (a Saturday) for parameter (SATURDAY) will return 2011-01-15 (same as input).<a name="line.427"></a>
-<span class="sourceLineNo">428</span>     * &lt;p&gt;<a name="line.428"></a>
-<span class="sourceLineNo">429</span>     * The behavior is suitable for use with most calendar systems.<a name="line.429"></a>
-<span class="sourceLineNo">430</span>     * It uses the {@code DAY_OF_WEEK} field and the {@code DAYS} unit,<a name="line.430"></a>
-<span class="sourceLineNo">431</span>     * and assumes a seven day week.<a name="line.431"></a>
-<span class="sourceLineNo">432</span>     *<a name="line.432"></a>
-<span class="sourceLineNo">433</span>     * @param dayOfWeek  the day-of-week to check for or move the date to, not null<a name="line.433"></a>
-<span class="sourceLineNo">434</span>     * @return the previous-or-same day-of-week adjuster, not null<a name="line.434"></a>
-<span class="sourceLineNo">435</span>     */<a name="line.435"></a>
-<span class="sourceLineNo">436</span>    public static TemporalAdjuster previousOrSame(DayOfWeek dayOfWeek) {<a name="line.436"></a>
-<span class="sourceLineNo">437</span>        return new RelativeDayOfWeek(1, dayOfWeek);<a name="line.437"></a>
-<span class="sourceLineNo">438</span>    }<a name="line.438"></a>
-<span class="sourceLineNo">439</span><a name="line.439"></a>
-<span class="sourceLineNo">440</span>    /**<a name="line.440"></a>
-<span class="sourceLineNo">441</span>     * Implementation of next, previous or current day-of-week.<a name="line.441"></a>
-<span class="sourceLineNo">442</span>     */<a name="line.442"></a>
-<span class="sourceLineNo">443</span>    private static final class RelativeDayOfWeek implements TemporalAdjuster {<a name="line.443"></a>
-<span class="sourceLineNo">444</span>        /** Whether the current date is a valid answer. */<a name="line.444"></a>
-<span class="sourceLineNo">445</span>        private final int relative;<a name="line.445"></a>
-<span class="sourceLineNo">446</span>        /** The day-of-week value, from 1 to 7. */<a name="line.446"></a>
-<span class="sourceLineNo">447</span>        private final int dowValue;<a name="line.447"></a>
-<span class="sourceLineNo">448</span><a name="line.448"></a>
-<span class="sourceLineNo">449</span>        private RelativeDayOfWeek(int relative, DayOfWeek dayOfWeek) {<a name="line.449"></a>
-<span class="sourceLineNo">450</span>            Objects.requireNonNull(dayOfWeek, "dayOfWeek");<a name="line.450"></a>
-<span class="sourceLineNo">451</span>            this.relative = relative;<a name="line.451"></a>
-<span class="sourceLineNo">452</span>            this.dowValue = dayOfWeek.getValue();<a name="line.452"></a>
-<span class="sourceLineNo">453</span>        }<a name="line.453"></a>
-<span class="sourceLineNo">454</span><a name="line.454"></a>
-<span class="sourceLineNo">455</span>        @Override<a name="line.455"></a>
-<span class="sourceLineNo">456</span>        public Temporal adjustInto(Temporal temporal) {<a name="line.456"></a>
-<span class="sourceLineNo">457</span>            int calDow = temporal.get(DAY_OF_WEEK);<a name="line.457"></a>
-<span class="sourceLineNo">458</span>            if (relative &lt; 2 &amp;&amp; calDow == dowValue) {<a name="line.458"></a>
-<span class="sourceLineNo">459</span>                return temporal;<a name="line.459"></a>
-<span class="sourceLineNo">460</span>            }<a name="line.460"></a>
-<span class="sourceLineNo">461</span>            if ((relative &amp; 1) == 0) {<a name="line.461"></a>
-<span class="sourceLineNo">462</span>                int daysDiff = calDow - dowValue;<a name="line.462"></a>
-<span class="sourceLineNo">463</span>                return temporal.plus(daysDiff &gt;= 0 ? 7 - daysDiff : -daysDiff, DAYS);<a name="line.463"></a>
-<span class="sourceLineNo">464</span>            } else {<a name="line.464"></a>
-<span class="sourceLineNo">465</span>                int daysDiff = dowValue - calDow;<a name="line.465"></a>
-<span class="sourceLineNo">466</span>                return temporal.minus(daysDiff &gt;= 0 ? 7 - daysDiff : -daysDiff, DAYS);<a name="line.466"></a>
-<span class="sourceLineNo">467</span>            }<a name="line.467"></a>
-<span class="sourceLineNo">468</span>        }<a name="line.468"></a>
-<span class="sourceLineNo">469</span>    }<a name="line.469"></a>
-<span class="sourceLineNo">470</span><a name="line.470"></a>
-<span class="sourceLineNo">471</span>}<a name="line.471"></a>
+<span class="sourceLineNo">317</span>     */<a name="line.317"></a>
+<span class="sourceLineNo">318</span>    public static TemporalAdjuster dayOfWeekInMonth(int ordinal, DayOfWeek dayOfWeek) {<a name="line.318"></a>
+<span class="sourceLineNo">319</span>        Objects.requireNonNull(dayOfWeek, "dayOfWeek");<a name="line.319"></a>
+<span class="sourceLineNo">320</span>        return new DayOfWeekInMonth(ordinal, dayOfWeek);<a name="line.320"></a>
+<span class="sourceLineNo">321</span>    }<a name="line.321"></a>
+<span class="sourceLineNo">322</span><a name="line.322"></a>
+<span class="sourceLineNo">323</span>    /**<a name="line.323"></a>
+<span class="sourceLineNo">324</span>     * Class implementing day-of-week in month adjuster.<a name="line.324"></a>
+<span class="sourceLineNo">325</span>     */<a name="line.325"></a>
+<span class="sourceLineNo">326</span>    private static final class DayOfWeekInMonth implements TemporalAdjuster {<a name="line.326"></a>
+<span class="sourceLineNo">327</span>        /** The ordinal. */<a name="line.327"></a>
+<span class="sourceLineNo">328</span>        private final int ordinal;<a name="line.328"></a>
+<span class="sourceLineNo">329</span>        /** The day-of-week value, from 1 to 7. */<a name="line.329"></a>
+<span class="sourceLineNo">330</span>        private final int dowValue;<a name="line.330"></a>
+<span class="sourceLineNo">331</span><a name="line.331"></a>
+<span class="sourceLineNo">332</span>        private DayOfWeekInMonth(int ordinal, DayOfWeek dow) {<a name="line.332"></a>
+<span class="sourceLineNo">333</span>            super();<a name="line.333"></a>
+<span class="sourceLineNo">334</span>            this.ordinal = ordinal;<a name="line.334"></a>
+<span class="sourceLineNo">335</span>            this.dowValue = dow.getValue();<a name="line.335"></a>
+<span class="sourceLineNo">336</span>        }<a name="line.336"></a>
+<span class="sourceLineNo">337</span>        @Override<a name="line.337"></a>
+<span class="sourceLineNo">338</span>        public Temporal adjustInto(Temporal temporal) {<a name="line.338"></a>
+<span class="sourceLineNo">339</span>            if (ordinal &gt;= 0) {<a name="line.339"></a>
+<span class="sourceLineNo">340</span>                Temporal temp = temporal.with(DAY_OF_MONTH, 1);<a name="line.340"></a>
+<span class="sourceLineNo">341</span>                int curDow = temp.get(DAY_OF_WEEK);<a name="line.341"></a>
+<span class="sourceLineNo">342</span>                int dowDiff = (dowValue - curDow + 7) % 7;<a name="line.342"></a>
+<span class="sourceLineNo">343</span>                dowDiff += (ordinal - 1L) * 7L;  // safe from overflow<a name="line.343"></a>
+<span class="sourceLineNo">344</span>                return temp.plus(dowDiff, DAYS);<a name="line.344"></a>
+<span class="sourceLineNo">345</span>            } else {<a name="line.345"></a>
+<span class="sourceLineNo">346</span>                Temporal temp = temporal.with(DAY_OF_MONTH, temporal.range(DAY_OF_MONTH).getMaximum());<a name="line.346"></a>
+<span class="sourceLineNo">347</span>                int curDow = temp.get(DAY_OF_WEEK);<a name="line.347"></a>
+<span class="sourceLineNo">348</span>                int daysDiff = dowValue - curDow;<a name="line.348"></a>
+<span class="sourceLineNo">349</span>                daysDiff = (daysDiff == 0 ? 0 : (daysDiff &gt; 0 ? daysDiff - 7 : daysDiff));<a name="line.349"></a>
+<span class="sourceLineNo">350</span>                daysDiff -= (-ordinal - 1L) * 7L;  // safe from overflow<a name="line.350"></a>
+<span class="sourceLineNo">351</span>                return temp.plus(daysDiff, DAYS);<a name="line.351"></a>
+<span class="sourceLineNo">352</span>            }<a name="line.352"></a>
+<span class="sourceLineNo">353</span>        }<a name="line.353"></a>
+<span class="sourceLineNo">354</span>    }<a name="line.354"></a>
+<span class="sourceLineNo">355</span><a name="line.355"></a>
+<span class="sourceLineNo">356</span>    //-----------------------------------------------------------------------<a name="line.356"></a>
+<span class="sourceLineNo">357</span>    /**<a name="line.357"></a>
+<span class="sourceLineNo">358</span>     * Returns the next day-of-week adjuster, which adjusts the date to the<a name="line.358"></a>
+<span class="sourceLineNo">359</span>     * first occurrence of the specified day-of-week after the date being adjusted.<a name="line.359"></a>
+<span class="sourceLineNo">360</span>     * &lt;p&gt;<a name="line.360"></a>
+<span class="sourceLineNo">361</span>     * The ISO calendar system behaves as follows:&lt;br&gt;<a name="line.361"></a>
+<span class="sourceLineNo">362</span>     * The input 2011-01-15 (a Saturday) for parameter (MONDAY) will return 2011-01-17 (two days later).&lt;br&gt;<a name="line.362"></a>
+<span class="sourceLineNo">363</span>     * The input 2011-01-15 (a Saturday) for parameter (WEDNESDAY) will return 2011-01-19 (four days later).&lt;br&gt;<a name="line.363"></a>
+<span class="sourceLineNo">364</span>     * The input 2011-01-15 (a Saturday) for parameter (SATURDAY) will return 2011-01-22 (seven days later).<a name="line.364"></a>
+<span class="sourceLineNo">365</span>     * &lt;p&gt;<a name="line.365"></a>
+<span class="sourceLineNo">366</span>     * The behavior is suitable for use with most calendar systems.<a name="line.366"></a>
+<span class="sourceLineNo">367</span>     * It uses the {@code DAY_OF_WEEK} field and the {@code DAYS} unit,<a name="line.367"></a>
+<span class="sourceLineNo">368</span>     * and assumes a seven day week.<a name="line.368"></a>
+<span class="sourceLineNo">369</span>     *<a name="line.369"></a>
+<span class="sourceLineNo">370</span>     * @param dayOfWeek  the day-of-week to move the date to, not null<a name="line.370"></a>
+<span class="sourceLineNo">371</span>     * @return the next day-of-week adjuster, not null<a name="line.371"></a>
+<span class="sourceLineNo">372</span>     */<a name="line.372"></a>
+<span class="sourceLineNo">373</span>    public static TemporalAdjuster next(DayOfWeek dayOfWeek) {<a name="line.373"></a>
+<span class="sourceLineNo">374</span>        return new RelativeDayOfWeek(2, dayOfWeek);<a name="line.374"></a>
+<span class="sourceLineNo">375</span>    }<a name="line.375"></a>
+<span class="sourceLineNo">376</span><a name="line.376"></a>
+<span class="sourceLineNo">377</span>    /**<a name="line.377"></a>
+<span class="sourceLineNo">378</span>     * Returns the next-or-same day-of-week adjuster, which adjusts the date to the<a name="line.378"></a>
+<span class="sourceLineNo">379</span>     * first occurrence of the specified day-of-week after the date being adjusted<a name="line.379"></a>
+<span class="sourceLineNo">380</span>     * unless it is already on that day in which case the same object is returned.<a name="line.380"></a>
+<span class="sourceLineNo">381</span>     * &lt;p&gt;<a name="line.381"></a>
+<span class="sourceLineNo">382</span>     * The ISO calendar system behaves as follows:&lt;br&gt;<a name="line.382"></a>
+<span class="sourceLineNo">383</span>     * The input 2011-01-15 (a Saturday) for parameter (MONDAY) will return 2011-01-17 (two days later).&lt;br&gt;<a name="line.383"></a>
+<span class="sourceLineNo">384</span>     * The input 2011-01-15 (a Saturday) for parameter (WEDNESDAY) will return 2011-01-19 (four days later).&lt;br&gt;<a name="line.384"></a>
+<span class="sourceLineNo">385</span>     * The input 2011-01-15 (a Saturday) for parameter (SATURDAY) will return 2011-01-15 (same as input).<a name="line.385"></a>
+<span class="sourceLineNo">386</span>     * &lt;p&gt;<a name="line.386"></a>
+<span class="sourceLineNo">387</span>     * The behavior is suitable for use with most calendar systems.<a name="line.387"></a>
+<span class="sourceLineNo">388</span>     * It uses the {@code DAY_OF_WEEK} field and the {@code DAYS} unit,<a name="line.388"></a>
+<span class="sourceLineNo">389</span>     * and assumes a seven day week.<a name="line.389"></a>
+<span class="sourceLineNo">390</span>     *<a name="line.390"></a>
+<span class="sourceLineNo">391</span>     * @param dayOfWeek  the day-of-week to check for or move the date to, not null<a name="line.391"></a>
+<span class="sourceLineNo">392</span>     * @return the next-or-same day-of-week adjuster, not null<a name="line.392"></a>
+<span class="sourceLineNo">393</span>     */<a name="line.393"></a>
+<span class="sourceLineNo">394</span>    public static TemporalAdjuster nextOrSame(DayOfWeek dayOfWeek) {<a name="line.394"></a>
+<span class="sourceLineNo">395</span>        return new RelativeDayOfWeek(0, dayOfWeek);<a name="line.395"></a>
+<span class="sourceLineNo">396</span>    }<a name="line.396"></a>
+<span class="sourceLineNo">397</span><a name="line.397"></a>
+<span class="sourceLineNo">398</span>    /**<a name="line.398"></a>
+<span class="sourceLineNo">399</span>     * Returns the previous day-of-week adjuster, which adjusts the date to the<a name="line.399"></a>
+<span class="sourceLineNo">400</span>     * first occurrence of the specified day-of-week before the date being adjusted.<a name="line.400"></a>
+<span class="sourceLineNo">401</span>     * &lt;p&gt;<a name="line.401"></a>
+<span class="sourceLineNo">402</span>     * The ISO calendar system behaves as follows:&lt;br&gt;<a name="line.402"></a>
+<span class="sourceLineNo">403</span>     * The input 2011-01-15 (a Saturday) for parameter (MONDAY) will return 2011-01-10 (five days earlier).&lt;br&gt;<a name="line.403"></a>
+<span class="sourceLineNo">404</span>     * The input 2011-01-15 (a Saturday) for parameter (WEDNESDAY) will return 2011-01-12 (three days earlier).&lt;br&gt;<a name="line.404"></a>
+<span class="sourceLineNo">405</span>     * The input 2011-01-15 (a Saturday) for parameter (SATURDAY) will return 2011-01-08 (seven days earlier).<a name="line.405"></a>
+<span class="sourceLineNo">406</span>     * &lt;p&gt;<a name="line.406"></a>
+<span class="sourceLineNo">407</span>     * The behavior is suitable for use with most calendar systems.<a name="line.407"></a>
+<span class="sourceLineNo">408</span>     * It uses the {@code DAY_OF_WEEK} field and the {@code DAYS} unit,<a name="line.408"></a>
+<span class="sourceLineNo">409</span>     * and assumes a seven day week.<a name="line.409"></a>
+<span class="sourceLineNo">410</span>     *<a name="line.410"></a>
+<span class="sourceLineNo">411</span>     * @param dayOfWeek  the day-of-week to move the date to, not null<a name="line.411"></a>
+<span class="sourceLineNo">412</span>     * @return the previous day-of-week adjuster, not null<a name="line.412"></a>
+<span class="sourceLineNo">413</span>     */<a name="line.413"></a>
+<span class="sourceLineNo">414</span>    public static TemporalAdjuster previous(DayOfWeek dayOfWeek) {<a name="line.414"></a>
+<span class="sourceLineNo">415</span>        return new RelativeDayOfWeek(3, dayOfWeek);<a name="line.415"></a>
+<span class="sourceLineNo">416</span>    }<a name="line.416"></a>
+<span class="sourceLineNo">417</span><a name="line.417"></a>
+<span class="sourceLineNo">418</span>    /**<a name="line.418"></a>
+<span class="sourceLineNo">419</span>     * Returns the previous-or-same day-of-week adjuster, which adjusts the date to the<a name="line.419"></a>
+<span class="sourceLineNo">420</span>     * first occurrence of the specified day-of-week before the date being adjusted<a name="line.420"></a>
+<span class="sourceLineNo">421</span>     * unless it is already on that day in which case the same object is returned.<a name="line.421"></a>
+<span class="sourceLineNo">422</span>     * &lt;p&gt;<a name="line.422"></a>
+<span class="sourceLineNo">423</span>     * The ISO calendar system behaves as follows:&lt;br&gt;<a name="line.423"></a>
+<span class="sourceLineNo">424</span>     * The input 2011-01-15 (a Saturday) for parameter (MONDAY) will return 2011-01-10 (five days earlier).&lt;br&gt;<a name="line.424"></a>
+<span class="sourceLineNo">425</span>     * The input 2011-01-15 (a Saturday) for parameter (WEDNESDAY) will return 2011-01-12 (three days earlier).&lt;br&gt;<a name="line.425"></a>
+<span class="sourceLineNo">426</span>     * The input 2011-01-15 (a Saturday) for parameter (SATURDAY) will return 2011-01-15 (same as input).<a name="line.426"></a>
+<span class="sourceLineNo">427</span>     * &lt;p&gt;<a name="line.427"></a>
+<span class="sourceLineNo">428</span>     * The behavior is suitable for use with most calendar systems.<a name="line.428"></a>
+<span class="sourceLineNo">429</span>     * It uses the {@code DAY_OF_WEEK} field and the {@code DAYS} unit,<a name="line.429"></a>
+<span class="sourceLineNo">430</span>     * and assumes a seven day week.<a name="line.430"></a>
+<span class="sourceLineNo">431</span>     *<a name="line.431"></a>
+<span class="sourceLineNo">432</span>     * @param dayOfWeek  the day-of-week to check for or move the date to, not null<a name="line.432"></a>
+<span class="sourceLineNo">433</span>     * @return the previous-or-same day-of-week adjuster, not null<a name="line.433"></a>
+<span class="sourceLineNo">434</span>     */<a name="line.434"></a>
+<span class="sourceLineNo">435</span>    public static TemporalAdjuster previousOrSame(DayOfWeek dayOfWeek) {<a name="line.435"></a>
+<span class="sourceLineNo">436</span>        return new RelativeDayOfWeek(1, dayOfWeek);<a name="line.436"></a>
+<span class="sourceLineNo">437</span>    }<a name="line.437"></a>
+<span class="sourceLineNo">438</span><a name="line.438"></a>
+<span class="sourceLineNo">439</span>    /**<a name="line.439"></a>
+<span class="sourceLineNo">440</span>     * Implementation of next, previous or current day-of-week.<a name="line.440"></a>
+<span class="sourceLineNo">441</span>     */<a name="line.441"></a>
+<span class="sourceLineNo">442</span>    private static final class RelativeDayOfWeek implements TemporalAdjuster {<a name="line.442"></a>
+<span class="sourceLineNo">443</span>        /** Whether the current date is a valid answer. */<a name="line.443"></a>
+<span class="sourceLineNo">444</span>        private final int relative;<a name="line.444"></a>
+<span class="sourceLineNo">445</span>        /** The day-of-week value, from 1 to 7. */<a name="line.445"></a>
+<span class="sourceLineNo">446</span>        private final int dowValue;<a name="line.446"></a>
+<span class="sourceLineNo">447</span><a name="line.447"></a>
+<span class="sourceLineNo">448</span>        private RelativeDayOfWeek(int relative, DayOfWeek dayOfWeek) {<a name="line.448"></a>
+<span class="sourceLineNo">449</span>            Objects.requireNonNull(dayOfWeek, "dayOfWeek");<a name="line.449"></a>
+<span class="sourceLineNo">450</span>            this.relative = relative;<a name="line.450"></a>
+<span class="sourceLineNo">451</span>            this.dowValue = dayOfWeek.getValue();<a name="line.451"></a>
+<span class="sourceLineNo">452</span>        }<a name="line.452"></a>
+<span class="sourceLineNo">453</span><a name="line.453"></a>
+<span class="sourceLineNo">454</span>        @Override<a name="line.454"></a>
+<span class="sourceLineNo">455</span>        public Temporal adjustInto(Temporal temporal) {<a name="line.455"></a>
+<span class="sourceLineNo">456</span>            int calDow = temporal.get(DAY_OF_WEEK);<a name="line.456"></a>
+<span class="sourceLineNo">457</span>            if (relative &lt; 2 &amp;&amp; calDow == dowValue) {<a name="line.457"></a>
+<span class="sourceLineNo">458</span>                return temporal;<a name="line.458"></a>
+<span class="sourceLineNo">459</span>            }<a name="line.459"></a>
+<span class="sourceLineNo">460</span>            if ((relative &amp; 1) == 0) {<a name="line.460"></a>
+<span class="sourceLineNo">461</span>                int daysDiff = calDow - dowValue;<a name="line.461"></a>
+<span class="sourceLineNo">462</span>                return temporal.plus(daysDiff &gt;= 0 ? 7 - daysDiff : -daysDiff, DAYS);<a name="line.462"></a>
+<span class="sourceLineNo">463</span>            } else {<a name="line.463"></a>
+<span class="sourceLineNo">464</span>                int daysDiff = dowValue - calDow;<a name="line.464"></a>
+<span class="sourceLineNo">465</span>                return temporal.minus(daysDiff &gt;= 0 ? 7 - daysDiff : -daysDiff, DAYS);<a name="line.465"></a>
+<span class="sourceLineNo">466</span>            }<a name="line.466"></a>
+<span class="sourceLineNo">467</span>        }<a name="line.467"></a>
+<span class="sourceLineNo">468</span>    }<a name="line.468"></a>
+<span class="sourceLineNo">469</span><a name="line.469"></a>
+<span class="sourceLineNo">470</span>}<a name="line.470"></a>
 
 
 

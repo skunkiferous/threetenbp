@@ -192,8 +192,8 @@
 <span class="sourceLineNo">184</span>     * @param locale  the locale to use, not null<a name="line.184"></a>
 <span class="sourceLineNo">185</span>     * @return the text value of the day-of-week, not null<a name="line.185"></a>
 <span class="sourceLineNo">186</span>     */<a name="line.186"></a>
-<span class="sourceLineNo">187</span>    public String getText(TextStyle style, Locale locale) {<a name="line.187"></a>
-<span class="sourceLineNo">188</span>        return new DateTimeFormatterBuilder().appendText(DAY_OF_WEEK, style).toFormatter(locale).print(this);<a name="line.188"></a>
+<span class="sourceLineNo">187</span>    public String getDisplayName(TextStyle style, Locale locale) {<a name="line.187"></a>
+<span class="sourceLineNo">188</span>        return new DateTimeFormatterBuilder().appendText(DAY_OF_WEEK, style).toFormatter(locale).format(this);<a name="line.188"></a>
 <span class="sourceLineNo">189</span>    }<a name="line.189"></a>
 <span class="sourceLineNo">190</span><a name="line.190"></a>
 <span class="sourceLineNo">191</span>    //-----------------------------------------------------------------------<a name="line.191"></a>
@@ -209,7 +209,7 @@
 <span class="sourceLineNo">201</span>     * All other {@code ChronoField} instances will return false.<a name="line.201"></a>
 <span class="sourceLineNo">202</span>     * &lt;p&gt;<a name="line.202"></a>
 <span class="sourceLineNo">203</span>     * If the field is not a {@code ChronoField}, then the result of this method<a name="line.203"></a>
-<span class="sourceLineNo">204</span>     * is obtained by invoking {@code TemporalField.doIsSupported(TemporalAccessor)}<a name="line.204"></a>
+<span class="sourceLineNo">204</span>     * is obtained by invoking {@code TemporalField.isSupportedBy(TemporalAccessor)}<a name="line.204"></a>
 <span class="sourceLineNo">205</span>     * passing {@code this} as the argument.<a name="line.205"></a>
 <span class="sourceLineNo">206</span>     * Whether the field is supported is determined by the field.<a name="line.206"></a>
 <span class="sourceLineNo">207</span>     *<a name="line.207"></a>
@@ -221,7 +221,7 @@
 <span class="sourceLineNo">213</span>        if (field instanceof ChronoField) {<a name="line.213"></a>
 <span class="sourceLineNo">214</span>            return field == DAY_OF_WEEK;<a name="line.214"></a>
 <span class="sourceLineNo">215</span>        }<a name="line.215"></a>
-<span class="sourceLineNo">216</span>        return field != null &amp;&amp; field.doIsSupported(this);<a name="line.216"></a>
+<span class="sourceLineNo">216</span>        return field != null &amp;&amp; field.isSupportedBy(this);<a name="line.216"></a>
 <span class="sourceLineNo">217</span>    }<a name="line.217"></a>
 <span class="sourceLineNo">218</span><a name="line.218"></a>
 <span class="sourceLineNo">219</span>    /**<a name="line.219"></a>
@@ -237,7 +237,7 @@
 <span class="sourceLineNo">229</span>     * All other {@code ChronoField} instances will throw a {@code DateTimeException}.<a name="line.229"></a>
 <span class="sourceLineNo">230</span>     * &lt;p&gt;<a name="line.230"></a>
 <span class="sourceLineNo">231</span>     * If the field is not a {@code ChronoField}, then the result of this method<a name="line.231"></a>
-<span class="sourceLineNo">232</span>     * is obtained by invoking {@code TemporalField.doRange(TemporalAccessor)}<a name="line.232"></a>
+<span class="sourceLineNo">232</span>     * is obtained by invoking {@code TemporalField.rangeRefinedBy(TemporalAccessor)}<a name="line.232"></a>
 <span class="sourceLineNo">233</span>     * passing {@code this} as the argument.<a name="line.233"></a>
 <span class="sourceLineNo">234</span>     * Whether the range can be obtained is determined by the field.<a name="line.234"></a>
 <span class="sourceLineNo">235</span>     *<a name="line.235"></a>
@@ -252,7 +252,7 @@
 <span class="sourceLineNo">244</span>        } else if (field instanceof ChronoField) {<a name="line.244"></a>
 <span class="sourceLineNo">245</span>            throw new DateTimeException("Unsupported field: " + field.getName());<a name="line.245"></a>
 <span class="sourceLineNo">246</span>        }<a name="line.246"></a>
-<span class="sourceLineNo">247</span>        return field.doRange(this);<a name="line.247"></a>
+<span class="sourceLineNo">247</span>        return field.rangeRefinedBy(this);<a name="line.247"></a>
 <span class="sourceLineNo">248</span>    }<a name="line.248"></a>
 <span class="sourceLineNo">249</span><a name="line.249"></a>
 <span class="sourceLineNo">250</span>    /**<a name="line.250"></a>
@@ -268,7 +268,7 @@
 <span class="sourceLineNo">260</span>     * All other {@code ChronoField} instances will throw a {@code DateTimeException}.<a name="line.260"></a>
 <span class="sourceLineNo">261</span>     * &lt;p&gt;<a name="line.261"></a>
 <span class="sourceLineNo">262</span>     * If the field is not a {@code ChronoField}, then the result of this method<a name="line.262"></a>
-<span class="sourceLineNo">263</span>     * is obtained by invoking {@code TemporalField.doGet(TemporalAccessor)}<a name="line.263"></a>
+<span class="sourceLineNo">263</span>     * is obtained by invoking {@code TemporalField.getFrom(TemporalAccessor)}<a name="line.263"></a>
 <span class="sourceLineNo">264</span>     * passing {@code this} as the argument. Whether the value can be obtained,<a name="line.264"></a>
 <span class="sourceLineNo">265</span>     * and what the value represents, is determined by the field.<a name="line.265"></a>
 <span class="sourceLineNo">266</span>     *<a name="line.266"></a>
@@ -299,7 +299,7 @@
 <span class="sourceLineNo">291</span>     * All other {@code ChronoField} instances will throw a {@code DateTimeException}.<a name="line.291"></a>
 <span class="sourceLineNo">292</span>     * &lt;p&gt;<a name="line.292"></a>
 <span class="sourceLineNo">293</span>     * If the field is not a {@code ChronoField}, then the result of this method<a name="line.293"></a>
-<span class="sourceLineNo">294</span>     * is obtained by invoking {@code TemporalField.doGet(TemporalAccessor)}<a name="line.294"></a>
+<span class="sourceLineNo">294</span>     * is obtained by invoking {@code TemporalField.getFrom(TemporalAccessor)}<a name="line.294"></a>
 <span class="sourceLineNo">295</span>     * passing {@code this} as the argument. Whether the value can be obtained,<a name="line.295"></a>
 <span class="sourceLineNo">296</span>     * and what the value represents, is determined by the field.<a name="line.296"></a>
 <span class="sourceLineNo">297</span>     *<a name="line.297"></a>
@@ -315,7 +315,7 @@
 <span class="sourceLineNo">307</span>        } else if (field instanceof ChronoField) {<a name="line.307"></a>
 <span class="sourceLineNo">308</span>            throw new DateTimeException("Unsupported field: " + field.getName());<a name="line.308"></a>
 <span class="sourceLineNo">309</span>        }<a name="line.309"></a>
-<span class="sourceLineNo">310</span>        return field.doGet(this);<a name="line.310"></a>
+<span class="sourceLineNo">310</span>        return field.getFrom(this);<a name="line.310"></a>
 <span class="sourceLineNo">311</span>    }<a name="line.311"></a>
 <span class="sourceLineNo">312</span><a name="line.312"></a>
 <span class="sourceLineNo">313</span>    //-----------------------------------------------------------------------<a name="line.313"></a>
@@ -374,7 +374,7 @@
 <span class="sourceLineNo">366</span>    public &lt;R&gt; R query(TemporalQuery&lt;R&gt; query) {<a name="line.366"></a>
 <span class="sourceLineNo">367</span>        if (query == TemporalQueries.precision()) {<a name="line.367"></a>
 <span class="sourceLineNo">368</span>            return (R) DAYS;<a name="line.368"></a>
-<span class="sourceLineNo">369</span>        } else if (query == TemporalQueries.zoneId() || query == TemporalQueries.chrono()) {<a name="line.369"></a>
+<span class="sourceLineNo">369</span>        } else if (query == TemporalQueries.zoneId() || query == TemporalQueries.chronology()) {<a name="line.369"></a>
 <span class="sourceLineNo">370</span>            return null;<a name="line.370"></a>
 <span class="sourceLineNo">371</span>        }<a name="line.371"></a>
 <span class="sourceLineNo">372</span>        return query.queryFrom(this);<a name="line.372"></a>

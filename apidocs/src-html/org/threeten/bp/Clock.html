@@ -355,265 +355,259 @@
 <span class="sourceLineNo">347</span>     * an instant on the time-line rather than a raw millisecond value.<a name="line.347"></a>
 <span class="sourceLineNo">348</span>     * This method is provided to allow the use of the clock in high performance use cases<a name="line.348"></a>
 <span class="sourceLineNo">349</span>     * where the creation of an object would be unacceptable.<a name="line.349"></a>
-<span class="sourceLineNo">350</span>     *<a name="line.350"></a>
-<span class="sourceLineNo">351</span>     * @return the current millisecond instant from this clock, measured from<a name="line.351"></a>
-<span class="sourceLineNo">352</span>     *  the Java epoch of 1970-01-01T00:00 UTC, not null<a name="line.352"></a>
-<span class="sourceLineNo">353</span>     * @throws DateTimeException if the instant cannot be obtained, not thrown by most implementations<a name="line.353"></a>
-<span class="sourceLineNo">354</span>     */<a name="line.354"></a>
-<span class="sourceLineNo">355</span>    public abstract long millis();<a name="line.355"></a>
-<span class="sourceLineNo">356</span><a name="line.356"></a>
-<span class="sourceLineNo">357</span>    //-----------------------------------------------------------------------<a name="line.357"></a>
-<span class="sourceLineNo">358</span>    /**<a name="line.358"></a>
-<span class="sourceLineNo">359</span>     * Gets the current instant of the clock.<a name="line.359"></a>
-<span class="sourceLineNo">360</span>     * &lt;p&gt;<a name="line.360"></a>
-<span class="sourceLineNo">361</span>     * This returns an instant representing the current instant as defined by the clock.<a name="line.361"></a>
-<span class="sourceLineNo">362</span>     * &lt;p&gt;<a name="line.362"></a>
-<span class="sourceLineNo">363</span>     * The default implementation currently calls {@link #millis}.<a name="line.363"></a>
-<span class="sourceLineNo">364</span>     *<a name="line.364"></a>
-<span class="sourceLineNo">365</span>     * @return the current instant from this clock, not null<a name="line.365"></a>
-<span class="sourceLineNo">366</span>     * @throws DateTimeException if the instant cannot be obtained, not thrown by most implementations<a name="line.366"></a>
-<span class="sourceLineNo">367</span>     */<a name="line.367"></a>
-<span class="sourceLineNo">368</span>    public Instant instant() {<a name="line.368"></a>
-<span class="sourceLineNo">369</span>        return Instant.ofEpochMilli(millis());<a name="line.369"></a>
-<span class="sourceLineNo">370</span>    }<a name="line.370"></a>
-<span class="sourceLineNo">371</span><a name="line.371"></a>
-<span class="sourceLineNo">372</span>    //-----------------------------------------------------------------------<a name="line.372"></a>
-<span class="sourceLineNo">373</span>    /**<a name="line.373"></a>
-<span class="sourceLineNo">374</span>     * Checks if this clock is equal to another clock.<a name="line.374"></a>
-<span class="sourceLineNo">375</span>     * &lt;p&gt;<a name="line.375"></a>
-<span class="sourceLineNo">376</span>     * Clocks must compare equal based on their state and behavior.<a name="line.376"></a>
-<span class="sourceLineNo">377</span>     *<a name="line.377"></a>
-<span class="sourceLineNo">378</span>     * @param obj  the object to check, null returns false<a name="line.378"></a>
-<span class="sourceLineNo">379</span>     * @return true if this is equal to the other clock<a name="line.379"></a>
-<span class="sourceLineNo">380</span>     */<a name="line.380"></a>
-<span class="sourceLineNo">381</span>    @Override<a name="line.381"></a>
-<span class="sourceLineNo">382</span>    public abstract boolean equals(Object obj);<a name="line.382"></a>
-<span class="sourceLineNo">383</span><a name="line.383"></a>
-<span class="sourceLineNo">384</span>    /**<a name="line.384"></a>
-<span class="sourceLineNo">385</span>     * A hash code for this clock.<a name="line.385"></a>
-<span class="sourceLineNo">386</span>     *<a name="line.386"></a>
-<span class="sourceLineNo">387</span>     * @return a suitable hash code<a name="line.387"></a>
-<span class="sourceLineNo">388</span>     */<a name="line.388"></a>
-<span class="sourceLineNo">389</span>    @Override<a name="line.389"></a>
-<span class="sourceLineNo">390</span>    public abstract int hashCode();<a name="line.390"></a>
-<span class="sourceLineNo">391</span><a name="line.391"></a>
-<span class="sourceLineNo">392</span>    //-----------------------------------------------------------------------<a name="line.392"></a>
-<span class="sourceLineNo">393</span>    /**<a name="line.393"></a>
-<span class="sourceLineNo">394</span>     * Returns a string describing this clock.<a name="line.394"></a>
-<span class="sourceLineNo">395</span>     * &lt;p&gt;<a name="line.395"></a>
-<span class="sourceLineNo">396</span>     * Clocks must have a string representation based on their state and behavior.<a name="line.396"></a>
-<span class="sourceLineNo">397</span>     * For example, 'System[Europe/Paris]' could be used to represent the System<a name="line.397"></a>
-<span class="sourceLineNo">398</span>     * clock in the 'Europe/Paris' time-zone.<a name="line.398"></a>
-<span class="sourceLineNo">399</span>     *<a name="line.399"></a>
-<span class="sourceLineNo">400</span>     * @return a string representation of this clock, not null<a name="line.400"></a>
-<span class="sourceLineNo">401</span>     */<a name="line.401"></a>
-<span class="sourceLineNo">402</span>    @Override<a name="line.402"></a>
-<span class="sourceLineNo">403</span>    public abstract String toString();<a name="line.403"></a>
-<span class="sourceLineNo">404</span><a name="line.404"></a>
-<span class="sourceLineNo">405</span>    //-----------------------------------------------------------------------<a name="line.405"></a>
-<span class="sourceLineNo">406</span>    /**<a name="line.406"></a>
-<span class="sourceLineNo">407</span>     * Implementation of a clock that always returns the latest time from<a name="line.407"></a>
-<span class="sourceLineNo">408</span>     * {@link System#currentTimeMillis()}.<a name="line.408"></a>
-<span class="sourceLineNo">409</span>     */<a name="line.409"></a>
-<span class="sourceLineNo">410</span>    static final class SystemClock extends Clock implements Serializable {<a name="line.410"></a>
-<span class="sourceLineNo">411</span>        private static final long serialVersionUID = 6740630888130243051L;<a name="line.411"></a>
-<span class="sourceLineNo">412</span>        private final ZoneId zone;<a name="line.412"></a>
-<span class="sourceLineNo">413</span><a name="line.413"></a>
-<span class="sourceLineNo">414</span>        SystemClock(ZoneId zone) {<a name="line.414"></a>
-<span class="sourceLineNo">415</span>            this.zone = zone;<a name="line.415"></a>
-<span class="sourceLineNo">416</span>        }<a name="line.416"></a>
-<span class="sourceLineNo">417</span>        @Override<a name="line.417"></a>
-<span class="sourceLineNo">418</span>        public ZoneId getZone() {<a name="line.418"></a>
-<span class="sourceLineNo">419</span>            return zone;<a name="line.419"></a>
-<span class="sourceLineNo">420</span>        }<a name="line.420"></a>
-<span class="sourceLineNo">421</span>        @Override<a name="line.421"></a>
-<span class="sourceLineNo">422</span>        public Clock withZone(ZoneId zone) {<a name="line.422"></a>
-<span class="sourceLineNo">423</span>            if (zone.equals(this.zone)) {  // intentional NPE<a name="line.423"></a>
-<span class="sourceLineNo">424</span>                return this;<a name="line.424"></a>
-<span class="sourceLineNo">425</span>            }<a name="line.425"></a>
-<span class="sourceLineNo">426</span>            return new SystemClock(zone);<a name="line.426"></a>
-<span class="sourceLineNo">427</span>        }<a name="line.427"></a>
-<span class="sourceLineNo">428</span>        @Override<a name="line.428"></a>
-<span class="sourceLineNo">429</span>        public long millis() {<a name="line.429"></a>
-<span class="sourceLineNo">430</span>            return System.currentTimeMillis();<a name="line.430"></a>
-<span class="sourceLineNo">431</span>        }<a name="line.431"></a>
-<span class="sourceLineNo">432</span>        @Override<a name="line.432"></a>
-<span class="sourceLineNo">433</span>        public boolean equals(Object obj) {<a name="line.433"></a>
-<span class="sourceLineNo">434</span>            if (obj instanceof SystemClock) {<a name="line.434"></a>
-<span class="sourceLineNo">435</span>                return zone.equals(((SystemClock) obj).zone);<a name="line.435"></a>
-<span class="sourceLineNo">436</span>            }<a name="line.436"></a>
-<span class="sourceLineNo">437</span>            return false;<a name="line.437"></a>
-<span class="sourceLineNo">438</span>        }<a name="line.438"></a>
-<span class="sourceLineNo">439</span>        @Override<a name="line.439"></a>
-<span class="sourceLineNo">440</span>        public int hashCode() {<a name="line.440"></a>
-<span class="sourceLineNo">441</span>            return zone.hashCode() + 1;<a name="line.441"></a>
-<span class="sourceLineNo">442</span>        }<a name="line.442"></a>
-<span class="sourceLineNo">443</span>        @Override<a name="line.443"></a>
-<span class="sourceLineNo">444</span>        public String toString() {<a name="line.444"></a>
-<span class="sourceLineNo">445</span>            return "SystemClock[" + zone + "]";<a name="line.445"></a>
-<span class="sourceLineNo">446</span>        }<a name="line.446"></a>
-<span class="sourceLineNo">447</span>    }<a name="line.447"></a>
-<span class="sourceLineNo">448</span><a name="line.448"></a>
-<span class="sourceLineNo">449</span>    //-----------------------------------------------------------------------<a name="line.449"></a>
-<span class="sourceLineNo">450</span>    /**<a name="line.450"></a>
-<span class="sourceLineNo">451</span>     * Implementation of a clock that always returns the same instant.<a name="line.451"></a>
-<span class="sourceLineNo">452</span>     * This is typically used for testing.<a name="line.452"></a>
-<span class="sourceLineNo">453</span>     */<a name="line.453"></a>
-<span class="sourceLineNo">454</span>    static final class FixedClock extends Clock implements Serializable {<a name="line.454"></a>
-<span class="sourceLineNo">455</span>       private static final long serialVersionUID = 7430389292664866958L;<a name="line.455"></a>
-<span class="sourceLineNo">456</span>        private final Instant instant;<a name="line.456"></a>
-<span class="sourceLineNo">457</span>        private final ZoneId zone;<a name="line.457"></a>
-<span class="sourceLineNo">458</span><a name="line.458"></a>
-<span class="sourceLineNo">459</span>        FixedClock(Instant fixedInstant, ZoneId zone) {<a name="line.459"></a>
-<span class="sourceLineNo">460</span>            this.instant = fixedInstant;<a name="line.460"></a>
-<span class="sourceLineNo">461</span>            this.zone = zone;<a name="line.461"></a>
-<span class="sourceLineNo">462</span>        }<a name="line.462"></a>
-<span class="sourceLineNo">463</span>        @Override<a name="line.463"></a>
-<span class="sourceLineNo">464</span>        public ZoneId getZone() {<a name="line.464"></a>
-<span class="sourceLineNo">465</span>            return zone;<a name="line.465"></a>
-<span class="sourceLineNo">466</span>        }<a name="line.466"></a>
-<span class="sourceLineNo">467</span>        @Override<a name="line.467"></a>
-<span class="sourceLineNo">468</span>        public Clock withZone(ZoneId zone) {<a name="line.468"></a>
-<span class="sourceLineNo">469</span>            if (zone.equals(this.zone)) {  // intentional NPE<a name="line.469"></a>
-<span class="sourceLineNo">470</span>                return this;<a name="line.470"></a>
-<span class="sourceLineNo">471</span>            }<a name="line.471"></a>
-<span class="sourceLineNo">472</span>            return new FixedClock(instant, zone);<a name="line.472"></a>
-<span class="sourceLineNo">473</span>        }<a name="line.473"></a>
-<span class="sourceLineNo">474</span>        @Override<a name="line.474"></a>
-<span class="sourceLineNo">475</span>        public long millis() {<a name="line.475"></a>
-<span class="sourceLineNo">476</span>            return instant.toEpochMilli();<a name="line.476"></a>
-<span class="sourceLineNo">477</span>        }<a name="line.477"></a>
-<span class="sourceLineNo">478</span>        @Override<a name="line.478"></a>
-<span class="sourceLineNo">479</span>        public Instant instant() {<a name="line.479"></a>
-<span class="sourceLineNo">480</span>            return instant;<a name="line.480"></a>
-<span class="sourceLineNo">481</span>        }<a name="line.481"></a>
-<span class="sourceLineNo">482</span>        @Override<a name="line.482"></a>
-<span class="sourceLineNo">483</span>        public boolean equals(Object obj) {<a name="line.483"></a>
-<span class="sourceLineNo">484</span>            if (obj instanceof FixedClock) {<a name="line.484"></a>
-<span class="sourceLineNo">485</span>                FixedClock other = (FixedClock) obj;<a name="line.485"></a>
-<span class="sourceLineNo">486</span>                return instant.equals(other.instant) &amp;&amp; zone.equals(other.zone);<a name="line.486"></a>
-<span class="sourceLineNo">487</span>            }<a name="line.487"></a>
-<span class="sourceLineNo">488</span>            return false;<a name="line.488"></a>
-<span class="sourceLineNo">489</span>        }<a name="line.489"></a>
-<span class="sourceLineNo">490</span>        @Override<a name="line.490"></a>
-<span class="sourceLineNo">491</span>        public int hashCode() {<a name="line.491"></a>
-<span class="sourceLineNo">492</span>            return instant.hashCode() ^ zone.hashCode();<a name="line.492"></a>
-<span class="sourceLineNo">493</span>        }<a name="line.493"></a>
-<span class="sourceLineNo">494</span>        @Override<a name="line.494"></a>
-<span class="sourceLineNo">495</span>        public String toString() {<a name="line.495"></a>
-<span class="sourceLineNo">496</span>            return "FixedClock[" + instant + "," + zone + "]";<a name="line.496"></a>
-<span class="sourceLineNo">497</span>        }<a name="line.497"></a>
-<span class="sourceLineNo">498</span>    }<a name="line.498"></a>
-<span class="sourceLineNo">499</span><a name="line.499"></a>
-<span class="sourceLineNo">500</span>    //-----------------------------------------------------------------------<a name="line.500"></a>
-<span class="sourceLineNo">501</span>    /**<a name="line.501"></a>
-<span class="sourceLineNo">502</span>     * Implementation of a clock that adds an offset to an underlying clock.<a name="line.502"></a>
-<span class="sourceLineNo">503</span>     */<a name="line.503"></a>
-<span class="sourceLineNo">504</span>    static final class OffsetClock extends Clock implements Serializable {<a name="line.504"></a>
-<span class="sourceLineNo">505</span>       private static final long serialVersionUID = 2007484719125426256L;<a name="line.505"></a>
-<span class="sourceLineNo">506</span>        private final Clock baseClock;<a name="line.506"></a>
-<span class="sourceLineNo">507</span>        private final Duration offset;<a name="line.507"></a>
-<span class="sourceLineNo">508</span><a name="line.508"></a>
-<span class="sourceLineNo">509</span>        OffsetClock(Clock baseClock, Duration offset) {<a name="line.509"></a>
-<span class="sourceLineNo">510</span>            this.baseClock = baseClock;<a name="line.510"></a>
-<span class="sourceLineNo">511</span>            this.offset = offset;<a name="line.511"></a>
-<span class="sourceLineNo">512</span>        }<a name="line.512"></a>
-<span class="sourceLineNo">513</span>        @Override<a name="line.513"></a>
-<span class="sourceLineNo">514</span>        public ZoneId getZone() {<a name="line.514"></a>
-<span class="sourceLineNo">515</span>            return baseClock.getZone();<a name="line.515"></a>
-<span class="sourceLineNo">516</span>        }<a name="line.516"></a>
-<span class="sourceLineNo">517</span>        @Override<a name="line.517"></a>
-<span class="sourceLineNo">518</span>        public Clock withZone(ZoneId zone) {<a name="line.518"></a>
-<span class="sourceLineNo">519</span>            if (zone.equals(baseClock.getZone())) {  // intentional NPE<a name="line.519"></a>
-<span class="sourceLineNo">520</span>                return this;<a name="line.520"></a>
-<span class="sourceLineNo">521</span>            }<a name="line.521"></a>
-<span class="sourceLineNo">522</span>            return new OffsetClock(baseClock.withZone(zone), offset);<a name="line.522"></a>
-<span class="sourceLineNo">523</span>        }<a name="line.523"></a>
-<span class="sourceLineNo">524</span>        @Override<a name="line.524"></a>
-<span class="sourceLineNo">525</span>        public long millis() {<a name="line.525"></a>
-<span class="sourceLineNo">526</span>            return Jdk8Methods.safeAdd(baseClock.millis(), offset.toMillis());<a name="line.526"></a>
-<span class="sourceLineNo">527</span>        }<a name="line.527"></a>
-<span class="sourceLineNo">528</span>        @Override<a name="line.528"></a>
-<span class="sourceLineNo">529</span>        public Instant instant() {<a name="line.529"></a>
-<span class="sourceLineNo">530</span>            return baseClock.instant().plus(offset);<a name="line.530"></a>
-<span class="sourceLineNo">531</span>        }<a name="line.531"></a>
-<span class="sourceLineNo">532</span>        @Override<a name="line.532"></a>
-<span class="sourceLineNo">533</span>        public boolean equals(Object obj) {<a name="line.533"></a>
-<span class="sourceLineNo">534</span>            if (obj instanceof OffsetClock) {<a name="line.534"></a>
-<span class="sourceLineNo">535</span>                OffsetClock other = (OffsetClock) obj;<a name="line.535"></a>
-<span class="sourceLineNo">536</span>                return baseClock.equals(other.baseClock) &amp;&amp; offset.equals(other.offset);<a name="line.536"></a>
-<span class="sourceLineNo">537</span>            }<a name="line.537"></a>
-<span class="sourceLineNo">538</span>            return false;<a name="line.538"></a>
-<span class="sourceLineNo">539</span>        }<a name="line.539"></a>
-<span class="sourceLineNo">540</span>        @Override<a name="line.540"></a>
-<span class="sourceLineNo">541</span>        public int hashCode() {<a name="line.541"></a>
-<span class="sourceLineNo">542</span>            return baseClock.hashCode() ^ offset.hashCode();<a name="line.542"></a>
-<span class="sourceLineNo">543</span>        }<a name="line.543"></a>
-<span class="sourceLineNo">544</span>        @Override<a name="line.544"></a>
-<span class="sourceLineNo">545</span>        public String toString() {<a name="line.545"></a>
-<span class="sourceLineNo">546</span>            return "OffsetClock[" + baseClock + "," + offset + "]";<a name="line.546"></a>
-<span class="sourceLineNo">547</span>        }<a name="line.547"></a>
-<span class="sourceLineNo">548</span>    }<a name="line.548"></a>
-<span class="sourceLineNo">549</span><a name="line.549"></a>
-<span class="sourceLineNo">550</span>    //-----------------------------------------------------------------------<a name="line.550"></a>
-<span class="sourceLineNo">551</span>    /**<a name="line.551"></a>
-<span class="sourceLineNo">552</span>     * Implementation of a clock that adds an offset to an underlying clock.<a name="line.552"></a>
-<span class="sourceLineNo">553</span>     */<a name="line.553"></a>
-<span class="sourceLineNo">554</span>    static final class TickClock extends Clock implements Serializable {<a name="line.554"></a>
-<span class="sourceLineNo">555</span>        private static final long serialVersionUID = 6504659149906368850L;<a name="line.555"></a>
-<span class="sourceLineNo">556</span>        private final Clock baseClock;<a name="line.556"></a>
-<span class="sourceLineNo">557</span>        private final long tickNanos;<a name="line.557"></a>
-<span class="sourceLineNo">558</span><a name="line.558"></a>
-<span class="sourceLineNo">559</span>        TickClock(Clock baseClock, long tickNanos) {<a name="line.559"></a>
-<span class="sourceLineNo">560</span>            this.baseClock = baseClock;<a name="line.560"></a>
-<span class="sourceLineNo">561</span>            this.tickNanos = tickNanos;<a name="line.561"></a>
-<span class="sourceLineNo">562</span>        }<a name="line.562"></a>
-<span class="sourceLineNo">563</span>        @Override<a name="line.563"></a>
-<span class="sourceLineNo">564</span>        public ZoneId getZone() {<a name="line.564"></a>
-<span class="sourceLineNo">565</span>            return baseClock.getZone();<a name="line.565"></a>
-<span class="sourceLineNo">566</span>        }<a name="line.566"></a>
-<span class="sourceLineNo">567</span>        @Override<a name="line.567"></a>
-<span class="sourceLineNo">568</span>        public Clock withZone(ZoneId zone) {<a name="line.568"></a>
-<span class="sourceLineNo">569</span>            if (zone.equals(baseClock.getZone())) {  // intentional NPE<a name="line.569"></a>
-<span class="sourceLineNo">570</span>                return this;<a name="line.570"></a>
-<span class="sourceLineNo">571</span>            }<a name="line.571"></a>
-<span class="sourceLineNo">572</span>            return new TickClock(baseClock.withZone(zone), tickNanos);<a name="line.572"></a>
-<span class="sourceLineNo">573</span>        }<a name="line.573"></a>
-<span class="sourceLineNo">574</span>        @Override<a name="line.574"></a>
-<span class="sourceLineNo">575</span>        public long millis() {<a name="line.575"></a>
-<span class="sourceLineNo">576</span>            long millis = baseClock.millis();<a name="line.576"></a>
-<span class="sourceLineNo">577</span>            return millis - Jdk8Methods.floorMod(millis, tickNanos / 1000_000L);<a name="line.577"></a>
-<span class="sourceLineNo">578</span>        }<a name="line.578"></a>
-<span class="sourceLineNo">579</span>        @Override<a name="line.579"></a>
-<span class="sourceLineNo">580</span>        public Instant instant() {<a name="line.580"></a>
-<span class="sourceLineNo">581</span>            if ((tickNanos % 1000_000) == 0) {<a name="line.581"></a>
-<span class="sourceLineNo">582</span>                long millis = baseClock.millis();<a name="line.582"></a>
-<span class="sourceLineNo">583</span>                return Instant.ofEpochMilli(millis - Jdk8Methods.floorMod(millis, tickNanos / 1000_000L));<a name="line.583"></a>
-<span class="sourceLineNo">584</span>            }<a name="line.584"></a>
-<span class="sourceLineNo">585</span>            Instant instant = baseClock.instant();<a name="line.585"></a>
-<span class="sourceLineNo">586</span>            long nanos = instant.getNano();<a name="line.586"></a>
-<span class="sourceLineNo">587</span>            long adjust = Jdk8Methods.floorMod(nanos, tickNanos);<a name="line.587"></a>
-<span class="sourceLineNo">588</span>            return instant.minusNanos(adjust);<a name="line.588"></a>
-<span class="sourceLineNo">589</span>        }<a name="line.589"></a>
-<span class="sourceLineNo">590</span>        @Override<a name="line.590"></a>
-<span class="sourceLineNo">591</span>        public boolean equals(Object obj) {<a name="line.591"></a>
-<span class="sourceLineNo">592</span>            if (obj instanceof TickClock) {<a name="line.592"></a>
-<span class="sourceLineNo">593</span>                TickClock other = (TickClock) obj;<a name="line.593"></a>
-<span class="sourceLineNo">594</span>                return baseClock.equals(other.baseClock) &amp;&amp; tickNanos == other.tickNanos;<a name="line.594"></a>
-<span class="sourceLineNo">595</span>            }<a name="line.595"></a>
-<span class="sourceLineNo">596</span>            return false;<a name="line.596"></a>
-<span class="sourceLineNo">597</span>        }<a name="line.597"></a>
-<span class="sourceLineNo">598</span>        @Override<a name="line.598"></a>
-<span class="sourceLineNo">599</span>        public int hashCode() {<a name="line.599"></a>
-<span class="sourceLineNo">600</span>            return baseClock.hashCode() ^ ((int) (tickNanos ^ (tickNanos &gt;&gt;&gt; 32)));<a name="line.600"></a>
-<span class="sourceLineNo">601</span>        }<a name="line.601"></a>
-<span class="sourceLineNo">602</span>        @Override<a name="line.602"></a>
-<span class="sourceLineNo">603</span>        public String toString() {<a name="line.603"></a>
-<span class="sourceLineNo">604</span>            return "TickClock[" + baseClock + "," + Duration.ofNanos(tickNanos) + "]";<a name="line.604"></a>
-<span class="sourceLineNo">605</span>        }<a name="line.605"></a>
-<span class="sourceLineNo">606</span>    }<a name="line.606"></a>
-<span class="sourceLineNo">607</span><a name="line.607"></a>
-<span class="sourceLineNo">608</span>}<a name="line.608"></a>
+<span class="sourceLineNo">350</span>     * The default implementation currently calls {@link #instant()}.<a name="line.350"></a>
+<span class="sourceLineNo">351</span>     * &lt;p&gt;<a name="line.351"></a>
+<span class="sourceLineNo">352</span>     *<a name="line.352"></a>
+<span class="sourceLineNo">353</span>     * @return the current millisecond instant from this clock, measured from<a name="line.353"></a>
+<span class="sourceLineNo">354</span>     *  the Java epoch of 1970-01-01T00:00 UTC, not null<a name="line.354"></a>
+<span class="sourceLineNo">355</span>     * @throws DateTimeException if the instant cannot be obtained, not thrown by most implementations<a name="line.355"></a>
+<span class="sourceLineNo">356</span>     */<a name="line.356"></a>
+<span class="sourceLineNo">357</span>    public long millis() {<a name="line.357"></a>
+<span class="sourceLineNo">358</span>        return instant().toEpochMilli();<a name="line.358"></a>
+<span class="sourceLineNo">359</span>    }<a name="line.359"></a>
+<span class="sourceLineNo">360</span><a name="line.360"></a>
+<span class="sourceLineNo">361</span>    /**<a name="line.361"></a>
+<span class="sourceLineNo">362</span>     * Gets the current instant of the clock.<a name="line.362"></a>
+<span class="sourceLineNo">363</span>     * &lt;p&gt;<a name="line.363"></a>
+<span class="sourceLineNo">364</span>     * This returns an instant representing the current instant as defined by the clock.<a name="line.364"></a>
+<span class="sourceLineNo">365</span>     *<a name="line.365"></a>
+<span class="sourceLineNo">366</span>     * @return the current instant from this clock, not null<a name="line.366"></a>
+<span class="sourceLineNo">367</span>     * @throws DateTimeException if the instant cannot be obtained, not thrown by most implementations<a name="line.367"></a>
+<span class="sourceLineNo">368</span>     */<a name="line.368"></a>
+<span class="sourceLineNo">369</span>    public abstract Instant instant();<a name="line.369"></a>
+<span class="sourceLineNo">370</span><a name="line.370"></a>
+<span class="sourceLineNo">371</span>    //-----------------------------------------------------------------------<a name="line.371"></a>
+<span class="sourceLineNo">372</span>    /**<a name="line.372"></a>
+<span class="sourceLineNo">373</span>     * Checks if this clock is equal to another clock.<a name="line.373"></a>
+<span class="sourceLineNo">374</span>     * &lt;p&gt;<a name="line.374"></a>
+<span class="sourceLineNo">375</span>     * Clocks must compare equal based on their state and behavior.<a name="line.375"></a>
+<span class="sourceLineNo">376</span>     *<a name="line.376"></a>
+<span class="sourceLineNo">377</span>     * @param obj  the object to check, null returns false<a name="line.377"></a>
+<span class="sourceLineNo">378</span>     * @return true if this is equal to the other clock<a name="line.378"></a>
+<span class="sourceLineNo">379</span>     */<a name="line.379"></a>
+<span class="sourceLineNo">380</span>    @Override<a name="line.380"></a>
+<span class="sourceLineNo">381</span>    public boolean equals(Object obj) {<a name="line.381"></a>
+<span class="sourceLineNo">382</span>        return super.equals(obj);<a name="line.382"></a>
+<span class="sourceLineNo">383</span>    }<a name="line.383"></a>
+<span class="sourceLineNo">384</span><a name="line.384"></a>
+<span class="sourceLineNo">385</span>    /**<a name="line.385"></a>
+<span class="sourceLineNo">386</span>     * A hash code for this clock.<a name="line.386"></a>
+<span class="sourceLineNo">387</span>     *<a name="line.387"></a>
+<span class="sourceLineNo">388</span>     * @return a suitable hash code<a name="line.388"></a>
+<span class="sourceLineNo">389</span>     */<a name="line.389"></a>
+<span class="sourceLineNo">390</span>    @Override<a name="line.390"></a>
+<span class="sourceLineNo">391</span>    public int hashCode() {<a name="line.391"></a>
+<span class="sourceLineNo">392</span>        return super.hashCode();<a name="line.392"></a>
+<span class="sourceLineNo">393</span>    }<a name="line.393"></a>
+<span class="sourceLineNo">394</span><a name="line.394"></a>
+<span class="sourceLineNo">395</span>    //-----------------------------------------------------------------------<a name="line.395"></a>
+<span class="sourceLineNo">396</span>    /**<a name="line.396"></a>
+<span class="sourceLineNo">397</span>     * Implementation of a clock that always returns the latest time from<a name="line.397"></a>
+<span class="sourceLineNo">398</span>     * {@link System#currentTimeMillis()}.<a name="line.398"></a>
+<span class="sourceLineNo">399</span>     */<a name="line.399"></a>
+<span class="sourceLineNo">400</span>    static final class SystemClock extends Clock implements Serializable {<a name="line.400"></a>
+<span class="sourceLineNo">401</span>        private static final long serialVersionUID = 6740630888130243051L;<a name="line.401"></a>
+<span class="sourceLineNo">402</span>        private final ZoneId zone;<a name="line.402"></a>
+<span class="sourceLineNo">403</span><a name="line.403"></a>
+<span class="sourceLineNo">404</span>        SystemClock(ZoneId zone) {<a name="line.404"></a>
+<span class="sourceLineNo">405</span>            this.zone = zone;<a name="line.405"></a>
+<span class="sourceLineNo">406</span>        }<a name="line.406"></a>
+<span class="sourceLineNo">407</span>        @Override<a name="line.407"></a>
+<span class="sourceLineNo">408</span>        public ZoneId getZone() {<a name="line.408"></a>
+<span class="sourceLineNo">409</span>            return zone;<a name="line.409"></a>
+<span class="sourceLineNo">410</span>        }<a name="line.410"></a>
+<span class="sourceLineNo">411</span>        @Override<a name="line.411"></a>
+<span class="sourceLineNo">412</span>        public Clock withZone(ZoneId zone) {<a name="line.412"></a>
+<span class="sourceLineNo">413</span>            if (zone.equals(this.zone)) {  // intentional NPE<a name="line.413"></a>
+<span class="sourceLineNo">414</span>                return this;<a name="line.414"></a>
+<span class="sourceLineNo">415</span>            }<a name="line.415"></a>
+<span class="sourceLineNo">416</span>            return new SystemClock(zone);<a name="line.416"></a>
+<span class="sourceLineNo">417</span>        }<a name="line.417"></a>
+<span class="sourceLineNo">418</span>        @Override<a name="line.418"></a>
+<span class="sourceLineNo">419</span>        public long millis() {<a name="line.419"></a>
+<span class="sourceLineNo">420</span>            return System.currentTimeMillis();<a name="line.420"></a>
+<span class="sourceLineNo">421</span>        }<a name="line.421"></a>
+<span class="sourceLineNo">422</span>        @Override<a name="line.422"></a>
+<span class="sourceLineNo">423</span>        public Instant instant() {<a name="line.423"></a>
+<span class="sourceLineNo">424</span>            return Instant.ofEpochMilli(millis());<a name="line.424"></a>
+<span class="sourceLineNo">425</span>        }<a name="line.425"></a>
+<span class="sourceLineNo">426</span>        @Override<a name="line.426"></a>
+<span class="sourceLineNo">427</span>        public boolean equals(Object obj) {<a name="line.427"></a>
+<span class="sourceLineNo">428</span>            if (obj instanceof SystemClock) {<a name="line.428"></a>
+<span class="sourceLineNo">429</span>                return zone.equals(((SystemClock) obj).zone);<a name="line.429"></a>
+<span class="sourceLineNo">430</span>            }<a name="line.430"></a>
+<span class="sourceLineNo">431</span>            return false;<a name="line.431"></a>
+<span class="sourceLineNo">432</span>        }<a name="line.432"></a>
+<span class="sourceLineNo">433</span>        @Override<a name="line.433"></a>
+<span class="sourceLineNo">434</span>        public int hashCode() {<a name="line.434"></a>
+<span class="sourceLineNo">435</span>            return zone.hashCode() + 1;<a name="line.435"></a>
+<span class="sourceLineNo">436</span>        }<a name="line.436"></a>
+<span class="sourceLineNo">437</span>        @Override<a name="line.437"></a>
+<span class="sourceLineNo">438</span>        public String toString() {<a name="line.438"></a>
+<span class="sourceLineNo">439</span>            return "SystemClock[" + zone + "]";<a name="line.439"></a>
+<span class="sourceLineNo">440</span>        }<a name="line.440"></a>
+<span class="sourceLineNo">441</span>    }<a name="line.441"></a>
+<span class="sourceLineNo">442</span><a name="line.442"></a>
+<span class="sourceLineNo">443</span>    //-----------------------------------------------------------------------<a name="line.443"></a>
+<span class="sourceLineNo">444</span>    /**<a name="line.444"></a>
+<span class="sourceLineNo">445</span>     * Implementation of a clock that always returns the same instant.<a name="line.445"></a>
+<span class="sourceLineNo">446</span>     * This is typically used for testing.<a name="line.446"></a>
+<span class="sourceLineNo">447</span>     */<a name="line.447"></a>
+<span class="sourceLineNo">448</span>    static final class FixedClock extends Clock implements Serializable {<a name="line.448"></a>
+<span class="sourceLineNo">449</span>       private static final long serialVersionUID = 7430389292664866958L;<a name="line.449"></a>
+<span class="sourceLineNo">450</span>        private final Instant instant;<a name="line.450"></a>
+<span class="sourceLineNo">451</span>        private final ZoneId zone;<a name="line.451"></a>
+<span class="sourceLineNo">452</span><a name="line.452"></a>
+<span class="sourceLineNo">453</span>        FixedClock(Instant fixedInstant, ZoneId zone) {<a name="line.453"></a>
+<span class="sourceLineNo">454</span>            this.instant = fixedInstant;<a name="line.454"></a>
+<span class="sourceLineNo">455</span>            this.zone = zone;<a name="line.455"></a>
+<span class="sourceLineNo">456</span>        }<a name="line.456"></a>
+<span class="sourceLineNo">457</span>        @Override<a name="line.457"></a>
+<span class="sourceLineNo">458</span>        public ZoneId getZone() {<a name="line.458"></a>
+<span class="sourceLineNo">459</span>            return zone;<a name="line.459"></a>
+<span class="sourceLineNo">460</span>        }<a name="line.460"></a>
+<span class="sourceLineNo">461</span>        @Override<a name="line.461"></a>
+<span class="sourceLineNo">462</span>        public Clock withZone(ZoneId zone) {<a name="line.462"></a>
+<span class="sourceLineNo">463</span>            if (zone.equals(this.zone)) {  // intentional NPE<a name="line.463"></a>
+<span class="sourceLineNo">464</span>                return this;<a name="line.464"></a>
+<span class="sourceLineNo">465</span>            }<a name="line.465"></a>
+<span class="sourceLineNo">466</span>            return new FixedClock(instant, zone);<a name="line.466"></a>
+<span class="sourceLineNo">467</span>        }<a name="line.467"></a>
+<span class="sourceLineNo">468</span>        @Override<a name="line.468"></a>
+<span class="sourceLineNo">469</span>        public long millis() {<a name="line.469"></a>
+<span class="sourceLineNo">470</span>            return instant.toEpochMilli();<a name="line.470"></a>
+<span class="sourceLineNo">471</span>        }<a name="line.471"></a>
+<span class="sourceLineNo">472</span>        @Override<a name="line.472"></a>
+<span class="sourceLineNo">473</span>        public Instant instant() {<a name="line.473"></a>
+<span class="sourceLineNo">474</span>            return instant;<a name="line.474"></a>
+<span class="sourceLineNo">475</span>        }<a name="line.475"></a>
+<span class="sourceLineNo">476</span>        @Override<a name="line.476"></a>
+<span class="sourceLineNo">477</span>        public boolean equals(Object obj) {<a name="line.477"></a>
+<span class="sourceLineNo">478</span>            if (obj instanceof FixedClock) {<a name="line.478"></a>
+<span class="sourceLineNo">479</span>                FixedClock other = (FixedClock) obj;<a name="line.479"></a>
+<span class="sourceLineNo">480</span>                return instant.equals(other.instant) &amp;&amp; zone.equals(other.zone);<a name="line.480"></a>
+<span class="sourceLineNo">481</span>            }<a name="line.481"></a>
+<span class="sourceLineNo">482</span>            return false;<a name="line.482"></a>
+<span class="sourceLineNo">483</span>        }<a name="line.483"></a>
+<span class="sourceLineNo">484</span>        @Override<a name="line.484"></a>
+<span class="sourceLineNo">485</span>        public int hashCode() {<a name="line.485"></a>
+<span class="sourceLineNo">486</span>            return instant.hashCode() ^ zone.hashCode();<a name="line.486"></a>
+<span class="sourceLineNo">487</span>        }<a name="line.487"></a>
+<span class="sourceLineNo">488</span>        @Override<a name="line.488"></a>
+<span class="sourceLineNo">489</span>        public String toString() {<a name="line.489"></a>
+<span class="sourceLineNo">490</span>            return "FixedClock[" + instant + "," + zone + "]";<a name="line.490"></a>
+<span class="sourceLineNo">491</span>        }<a name="line.491"></a>
+<span class="sourceLineNo">492</span>    }<a name="line.492"></a>
+<span class="sourceLineNo">493</span><a name="line.493"></a>
+<span class="sourceLineNo">494</span>    //-----------------------------------------------------------------------<a name="line.494"></a>
+<span class="sourceLineNo">495</span>    /**<a name="line.495"></a>
+<span class="sourceLineNo">496</span>     * Implementation of a clock that adds an offset to an underlying clock.<a name="line.496"></a>
+<span class="sourceLineNo">497</span>     */<a name="line.497"></a>
+<span class="sourceLineNo">498</span>    static final class OffsetClock extends Clock implements Serializable {<a name="line.498"></a>
+<span class="sourceLineNo">499</span>       private static final long serialVersionUID = 2007484719125426256L;<a name="line.499"></a>
+<span class="sourceLineNo">500</span>        private final Clock baseClock;<a name="line.500"></a>
+<span class="sourceLineNo">501</span>        private final Duration offset;<a name="line.501"></a>
+<span class="sourceLineNo">502</span><a name="line.502"></a>
+<span class="sourceLineNo">503</span>        OffsetClock(Clock baseClock, Duration offset) {<a name="line.503"></a>
+<span class="sourceLineNo">504</span>            this.baseClock = baseClock;<a name="line.504"></a>
+<span class="sourceLineNo">505</span>            this.offset = offset;<a name="line.505"></a>
+<span class="sourceLineNo">506</span>        }<a name="line.506"></a>
+<span class="sourceLineNo">507</span>        @Override<a name="line.507"></a>
+<span class="sourceLineNo">508</span>        public ZoneId getZone() {<a name="line.508"></a>
+<span class="sourceLineNo">509</span>            return baseClock.getZone();<a name="line.509"></a>
+<span class="sourceLineNo">510</span>        }<a name="line.510"></a>
+<span class="sourceLineNo">511</span>        @Override<a name="line.511"></a>
+<span class="sourceLineNo">512</span>        public Clock withZone(ZoneId zone) {<a name="line.512"></a>
+<span class="sourceLineNo">513</span>            if (zone.equals(baseClock.getZone())) {  // intentional NPE<a name="line.513"></a>
+<span class="sourceLineNo">514</span>                return this;<a name="line.514"></a>
+<span class="sourceLineNo">515</span>            }<a name="line.515"></a>
+<span class="sourceLineNo">516</span>            return new OffsetClock(baseClock.withZone(zone), offset);<a name="line.516"></a>
+<span class="sourceLineNo">517</span>        }<a name="line.517"></a>
+<span class="sourceLineNo">518</span>        @Override<a name="line.518"></a>
+<span class="sourceLineNo">519</span>        public long millis() {<a name="line.519"></a>
+<span class="sourceLineNo">520</span>            return Jdk8Methods.safeAdd(baseClock.millis(), offset.toMillis());<a name="line.520"></a>
+<span class="sourceLineNo">521</span>        }<a name="line.521"></a>
+<span class="sourceLineNo">522</span>        @Override<a name="line.522"></a>
+<span class="sourceLineNo">523</span>        public Instant instant() {<a name="line.523"></a>
+<span class="sourceLineNo">524</span>            return baseClock.instant().plus(offset);<a name="line.524"></a>
+<span class="sourceLineNo">525</span>        }<a name="line.525"></a>
+<span class="sourceLineNo">526</span>        @Override<a name="line.526"></a>
+<span class="sourceLineNo">527</span>        public boolean equals(Object obj) {<a name="line.527"></a>
+<span class="sourceLineNo">528</span>            if (obj instanceof OffsetClock) {<a name="line.528"></a>
+<span class="sourceLineNo">529</span>                OffsetClock other = (OffsetClock) obj;<a name="line.529"></a>
+<span class="sourceLineNo">530</span>                return baseClock.equals(other.baseClock) &amp;&amp; offset.equals(other.offset);<a name="line.530"></a>
+<span class="sourceLineNo">531</span>            }<a name="line.531"></a>
+<span class="sourceLineNo">532</span>            return false;<a name="line.532"></a>
+<span class="sourceLineNo">533</span>        }<a name="line.533"></a>
+<span class="sourceLineNo">534</span>        @Override<a name="line.534"></a>
+<span class="sourceLineNo">535</span>        public int hashCode() {<a name="line.535"></a>
+<span class="sourceLineNo">536</span>            return baseClock.hashCode() ^ offset.hashCode();<a name="line.536"></a>
+<span class="sourceLineNo">537</span>        }<a name="line.537"></a>
+<span class="sourceLineNo">538</span>        @Override<a name="line.538"></a>
+<span class="sourceLineNo">539</span>        public String toString() {<a name="line.539"></a>
+<span class="sourceLineNo">540</span>            return "OffsetClock[" + baseClock + "," + offset + "]";<a name="line.540"></a>
+<span class="sourceLineNo">541</span>        }<a name="line.541"></a>
+<span class="sourceLineNo">542</span>    }<a name="line.542"></a>
+<span class="sourceLineNo">543</span><a name="line.543"></a>
+<span class="sourceLineNo">544</span>    //-----------------------------------------------------------------------<a name="line.544"></a>
+<span class="sourceLineNo">545</span>    /**<a name="line.545"></a>
+<span class="sourceLineNo">546</span>     * Implementation of a clock that adds an offset to an underlying clock.<a name="line.546"></a>
+<span class="sourceLineNo">547</span>     */<a name="line.547"></a>
+<span class="sourceLineNo">548</span>    static final class TickClock extends Clock implements Serializable {<a name="line.548"></a>
+<span class="sourceLineNo">549</span>        private static final long serialVersionUID = 6504659149906368850L;<a name="line.549"></a>
+<span class="sourceLineNo">550</span>        private final Clock baseClock;<a name="line.550"></a>
+<span class="sourceLineNo">551</span>        private final long tickNanos;<a name="line.551"></a>
+<span class="sourceLineNo">552</span><a name="line.552"></a>
+<span class="sourceLineNo">553</span>        TickClock(Clock baseClock, long tickNanos) {<a name="line.553"></a>
+<span class="sourceLineNo">554</span>            this.baseClock = baseClock;<a name="line.554"></a>
+<span class="sourceLineNo">555</span>            this.tickNanos = tickNanos;<a name="line.555"></a>
+<span class="sourceLineNo">556</span>        }<a name="line.556"></a>
+<span class="sourceLineNo">557</span>        @Override<a name="line.557"></a>
+<span class="sourceLineNo">558</span>        public ZoneId getZone() {<a name="line.558"></a>
+<span class="sourceLineNo">559</span>            return baseClock.getZone();<a name="line.559"></a>
+<span class="sourceLineNo">560</span>        }<a name="line.560"></a>
+<span class="sourceLineNo">561</span>        @Override<a name="line.561"></a>
+<span class="sourceLineNo">562</span>        public Clock withZone(ZoneId zone) {<a name="line.562"></a>
+<span class="sourceLineNo">563</span>            if (zone.equals(baseClock.getZone())) {  // intentional NPE<a name="line.563"></a>
+<span class="sourceLineNo">564</span>                return this;<a name="line.564"></a>
+<span class="sourceLineNo">565</span>            }<a name="line.565"></a>
+<span class="sourceLineNo">566</span>            return new TickClock(baseClock.withZone(zone), tickNanos);<a name="line.566"></a>
+<span class="sourceLineNo">567</span>        }<a name="line.567"></a>
+<span class="sourceLineNo">568</span>        @Override<a name="line.568"></a>
+<span class="sourceLineNo">569</span>        public long millis() {<a name="line.569"></a>
+<span class="sourceLineNo">570</span>            long millis = baseClock.millis();<a name="line.570"></a>
+<span class="sourceLineNo">571</span>            return millis - Jdk8Methods.floorMod(millis, tickNanos / 1000_000L);<a name="line.571"></a>
+<span class="sourceLineNo">572</span>        }<a name="line.572"></a>
+<span class="sourceLineNo">573</span>        @Override<a name="line.573"></a>
+<span class="sourceLineNo">574</span>        public Instant instant() {<a name="line.574"></a>
+<span class="sourceLineNo">575</span>            if ((tickNanos % 1000_000) == 0) {<a name="line.575"></a>
+<span class="sourceLineNo">576</span>                long millis = baseClock.millis();<a name="line.576"></a>
+<span class="sourceLineNo">577</span>                return Instant.ofEpochMilli(millis - Jdk8Methods.floorMod(millis, tickNanos / 1000_000L));<a name="line.577"></a>
+<span class="sourceLineNo">578</span>            }<a name="line.578"></a>
+<span class="sourceLineNo">579</span>            Instant instant = baseClock.instant();<a name="line.579"></a>
+<span class="sourceLineNo">580</span>            long nanos = instant.getNano();<a name="line.580"></a>
+<span class="sourceLineNo">581</span>            long adjust = Jdk8Methods.floorMod(nanos, tickNanos);<a name="line.581"></a>
+<span class="sourceLineNo">582</span>            return instant.minusNanos(adjust);<a name="line.582"></a>
+<span class="sourceLineNo">583</span>        }<a name="line.583"></a>
+<span class="sourceLineNo">584</span>        @Override<a name="line.584"></a>
+<span class="sourceLineNo">585</span>        public boolean equals(Object obj) {<a name="line.585"></a>
+<span class="sourceLineNo">586</span>            if (obj instanceof TickClock) {<a name="line.586"></a>
+<span class="sourceLineNo">587</span>                TickClock other = (TickClock) obj;<a name="line.587"></a>
+<span class="sourceLineNo">588</span>                return baseClock.equals(other.baseClock) &amp;&amp; tickNanos == other.tickNanos;<a name="line.588"></a>
+<span class="sourceLineNo">589</span>            }<a name="line.589"></a>
+<span class="sourceLineNo">590</span>            return false;<a name="line.590"></a>
+<span class="sourceLineNo">591</span>        }<a name="line.591"></a>
+<span class="sourceLineNo">592</span>        @Override<a name="line.592"></a>
+<span class="sourceLineNo">593</span>        public int hashCode() {<a name="line.593"></a>
+<span class="sourceLineNo">594</span>            return baseClock.hashCode() ^ ((int) (tickNanos ^ (tickNanos &gt;&gt;&gt; 32)));<a name="line.594"></a>
+<span class="sourceLineNo">595</span>        }<a name="line.595"></a>
+<span class="sourceLineNo">596</span>        @Override<a name="line.596"></a>
+<span class="sourceLineNo">597</span>        public String toString() {<a name="line.597"></a>
+<span class="sourceLineNo">598</span>            return "TickClock[" + baseClock + "," + Duration.ofNanos(tickNanos) + "]";<a name="line.598"></a>
+<span class="sourceLineNo">599</span>        }<a name="line.599"></a>
+<span class="sourceLineNo">600</span>    }<a name="line.600"></a>
+<span class="sourceLineNo">601</span><a name="line.601"></a>
+<span class="sourceLineNo">602</span>}<a name="line.602"></a>
 
 
 

@@ -52,49 +52,49 @@
 <span class="sourceLineNo">044</span>import java.io.Serializable;<a name="line.44"></a>
 <span class="sourceLineNo">045</span>import java.util.Objects;<a name="line.45"></a>
 <span class="sourceLineNo">046</span><a name="line.46"></a>
-<span class="sourceLineNo">047</span>import org.threeten.bp.format.DateTimeFormatter;<a name="line.47"></a>
-<span class="sourceLineNo">048</span>import org.threeten.bp.format.DateTimeFormatterBuilder;<a name="line.48"></a>
-<span class="sourceLineNo">049</span>import org.threeten.bp.format.DateTimeParseException;<a name="line.49"></a>
-<span class="sourceLineNo">050</span>import org.threeten.bp.format.SignStyle;<a name="line.50"></a>
-<span class="sourceLineNo">051</span>import org.threeten.bp.jdk8.DefaultInterfaceTemporalAccessor;<a name="line.51"></a>
-<span class="sourceLineNo">052</span>import org.threeten.bp.jdk8.Jdk8Methods;<a name="line.52"></a>
-<span class="sourceLineNo">053</span>import org.threeten.bp.temporal.Chrono;<a name="line.53"></a>
-<span class="sourceLineNo">054</span>import org.threeten.bp.temporal.ChronoField;<a name="line.54"></a>
-<span class="sourceLineNo">055</span>import org.threeten.bp.temporal.ChronoUnit;<a name="line.55"></a>
-<span class="sourceLineNo">056</span>import org.threeten.bp.temporal.ISOChrono;<a name="line.56"></a>
+<span class="sourceLineNo">047</span>import org.threeten.bp.chrono.Chronology;<a name="line.47"></a>
+<span class="sourceLineNo">048</span>import org.threeten.bp.chrono.IsoChronology;<a name="line.48"></a>
+<span class="sourceLineNo">049</span>import org.threeten.bp.format.DateTimeFormatter;<a name="line.49"></a>
+<span class="sourceLineNo">050</span>import org.threeten.bp.format.DateTimeFormatterBuilder;<a name="line.50"></a>
+<span class="sourceLineNo">051</span>import org.threeten.bp.format.DateTimeParseException;<a name="line.51"></a>
+<span class="sourceLineNo">052</span>import org.threeten.bp.format.SignStyle;<a name="line.52"></a>
+<span class="sourceLineNo">053</span>import org.threeten.bp.jdk8.DefaultInterfaceTemporalAccessor;<a name="line.53"></a>
+<span class="sourceLineNo">054</span>import org.threeten.bp.jdk8.Jdk8Methods;<a name="line.54"></a>
+<span class="sourceLineNo">055</span>import org.threeten.bp.temporal.ChronoField;<a name="line.55"></a>
+<span class="sourceLineNo">056</span>import org.threeten.bp.temporal.ChronoUnit;<a name="line.56"></a>
 <span class="sourceLineNo">057</span>import org.threeten.bp.temporal.Temporal;<a name="line.57"></a>
 <span class="sourceLineNo">058</span>import org.threeten.bp.temporal.TemporalAccessor;<a name="line.58"></a>
-<span class="sourceLineNo">059</span>import org.threeten.bp.temporal.TemporalAdder;<a name="line.59"></a>
-<span class="sourceLineNo">060</span>import org.threeten.bp.temporal.TemporalAdjuster;<a name="line.60"></a>
+<span class="sourceLineNo">059</span>import org.threeten.bp.temporal.TemporalAdjuster;<a name="line.59"></a>
+<span class="sourceLineNo">060</span>import org.threeten.bp.temporal.TemporalAmount;<a name="line.60"></a>
 <span class="sourceLineNo">061</span>import org.threeten.bp.temporal.TemporalField;<a name="line.61"></a>
 <span class="sourceLineNo">062</span>import org.threeten.bp.temporal.TemporalQueries;<a name="line.62"></a>
 <span class="sourceLineNo">063</span>import org.threeten.bp.temporal.TemporalQuery;<a name="line.63"></a>
-<span class="sourceLineNo">064</span>import org.threeten.bp.temporal.TemporalSubtractor;<a name="line.64"></a>
-<span class="sourceLineNo">065</span>import org.threeten.bp.temporal.TemporalUnit;<a name="line.65"></a>
-<span class="sourceLineNo">066</span>import org.threeten.bp.temporal.ValueRange;<a name="line.66"></a>
-<span class="sourceLineNo">067</span><a name="line.67"></a>
-<span class="sourceLineNo">068</span>/**<a name="line.68"></a>
-<span class="sourceLineNo">069</span> * A year in the ISO-8601 calendar system, such as {@code 2007}.<a name="line.69"></a>
-<span class="sourceLineNo">070</span> * &lt;p&gt;<a name="line.70"></a>
-<span class="sourceLineNo">071</span> * {@code Year} is an immutable date-time object that represents a year.<a name="line.71"></a>
-<span class="sourceLineNo">072</span> * Any field that can be derived from a year can be obtained.<a name="line.72"></a>
-<span class="sourceLineNo">073</span> * &lt;p&gt;<a name="line.73"></a>
-<span class="sourceLineNo">074</span> * &lt;b&gt;Note that years in the ISO chronology only align with years in the<a name="line.74"></a>
-<span class="sourceLineNo">075</span> * Gregorian-Julian system for modern years. Parts of Russia did not switch to the<a name="line.75"></a>
-<span class="sourceLineNo">076</span> * modern Gregorian/ISO rules until 1920.<a name="line.76"></a>
-<span class="sourceLineNo">077</span> * As such, historical years must be treated with caution.&lt;/b&gt;<a name="line.77"></a>
-<span class="sourceLineNo">078</span> * &lt;p&gt;<a name="line.78"></a>
-<span class="sourceLineNo">079</span> * This class does not store or represent a month, day, time or time-zone.<a name="line.79"></a>
-<span class="sourceLineNo">080</span> * For example, the value "2007" can be stored in a {@code Year}.<a name="line.80"></a>
-<span class="sourceLineNo">081</span> * &lt;p&gt;<a name="line.81"></a>
-<span class="sourceLineNo">082</span> * Years represented by this class follow the ISO-8601 standard and use<a name="line.82"></a>
-<span class="sourceLineNo">083</span> * the proleptic numbering system. Year 1 is preceded by year 0, then by year -1.<a name="line.83"></a>
-<span class="sourceLineNo">084</span> * &lt;p&gt;<a name="line.84"></a>
-<span class="sourceLineNo">085</span> * The ISO-8601 calendar system is the modern civil calendar system used today<a name="line.85"></a>
-<span class="sourceLineNo">086</span> * in most of the world. It is equivalent to the proleptic Gregorian calendar<a name="line.86"></a>
-<span class="sourceLineNo">087</span> * system, in which todays's rules for leap years are applied for all time.<a name="line.87"></a>
-<span class="sourceLineNo">088</span> * For most applications written today, the ISO-8601 rules are entirely suitable.<a name="line.88"></a>
-<span class="sourceLineNo">089</span> * Any application that uses historical dates should consider using {@code HistoricDate}.<a name="line.89"></a>
+<span class="sourceLineNo">064</span>import org.threeten.bp.temporal.TemporalUnit;<a name="line.64"></a>
+<span class="sourceLineNo">065</span>import org.threeten.bp.temporal.ValueRange;<a name="line.65"></a>
+<span class="sourceLineNo">066</span><a name="line.66"></a>
+<span class="sourceLineNo">067</span>/**<a name="line.67"></a>
+<span class="sourceLineNo">068</span> * A year in the ISO-8601 calendar system, such as {@code 2007}.<a name="line.68"></a>
+<span class="sourceLineNo">069</span> * &lt;p&gt;<a name="line.69"></a>
+<span class="sourceLineNo">070</span> * {@code Year} is an immutable date-time object that represents a year.<a name="line.70"></a>
+<span class="sourceLineNo">071</span> * Any field that can be derived from a year can be obtained.<a name="line.71"></a>
+<span class="sourceLineNo">072</span> * &lt;p&gt;<a name="line.72"></a>
+<span class="sourceLineNo">073</span> * &lt;b&gt;Note that years in the ISO chronology only align with years in the<a name="line.73"></a>
+<span class="sourceLineNo">074</span> * Gregorian-Julian system for modern years. Parts of Russia did not switch to the<a name="line.74"></a>
+<span class="sourceLineNo">075</span> * modern Gregorian/ISO rules until 1920.<a name="line.75"></a>
+<span class="sourceLineNo">076</span> * As such, historical years must be treated with caution.&lt;/b&gt;<a name="line.76"></a>
+<span class="sourceLineNo">077</span> * &lt;p&gt;<a name="line.77"></a>
+<span class="sourceLineNo">078</span> * This class does not store or represent a month, day, time or time-zone.<a name="line.78"></a>
+<span class="sourceLineNo">079</span> * For example, the value "2007" can be stored in a {@code Year}.<a name="line.79"></a>
+<span class="sourceLineNo">080</span> * &lt;p&gt;<a name="line.80"></a>
+<span class="sourceLineNo">081</span> * Years represented by this class follow the ISO-8601 standard and use<a name="line.81"></a>
+<span class="sourceLineNo">082</span> * the proleptic numbering system. Year 1 is preceded by year 0, then by year -1.<a name="line.82"></a>
+<span class="sourceLineNo">083</span> * &lt;p&gt;<a name="line.83"></a>
+<span class="sourceLineNo">084</span> * The ISO-8601 calendar system is the modern civil calendar system used today<a name="line.84"></a>
+<span class="sourceLineNo">085</span> * in most of the world. It is equivalent to the proleptic Gregorian calendar<a name="line.85"></a>
+<span class="sourceLineNo">086</span> * system, in which today's rules for leap years are applied for all time.<a name="line.86"></a>
+<span class="sourceLineNo">087</span> * For most applications written today, the ISO-8601 rules are entirely suitable.<a name="line.87"></a>
+<span class="sourceLineNo">088</span> * However, any application that makes use of historical dates, and requires them<a name="line.88"></a>
+<span class="sourceLineNo">089</span> * to be accurate will find the ISO-8601 approach unsuitable.<a name="line.89"></a>
 <span class="sourceLineNo">090</span> *<a name="line.90"></a>
 <span class="sourceLineNo">091</span> * &lt;h3&gt;Specification for implementors&lt;/h3&gt;<a name="line.91"></a>
 <span class="sourceLineNo">092</span> * This class is immutable and thread-safe.<a name="line.92"></a>
@@ -218,7 +218,7 @@
 <span class="sourceLineNo">210</span>            return (Year) temporal;<a name="line.210"></a>
 <span class="sourceLineNo">211</span>        }<a name="line.211"></a>
 <span class="sourceLineNo">212</span>        try {<a name="line.212"></a>
-<span class="sourceLineNo">213</span>            if (ISOChrono.INSTANCE.equals(Chrono.from(temporal)) == false) {<a name="line.213"></a>
+<span class="sourceLineNo">213</span>            if (IsoChronology.INSTANCE.equals(Chronology.from(temporal)) == false) {<a name="line.213"></a>
 <span class="sourceLineNo">214</span>                temporal = LocalDate.from(temporal);<a name="line.214"></a>
 <span class="sourceLineNo">215</span>            }<a name="line.215"></a>
 <span class="sourceLineNo">216</span>            return of(temporal.get(YEAR));<a name="line.216"></a>
@@ -323,7 +323,7 @@
 <span class="sourceLineNo">315</span>     * All other {@code ChronoField} instances will return false.<a name="line.315"></a>
 <span class="sourceLineNo">316</span>     * &lt;p&gt;<a name="line.316"></a>
 <span class="sourceLineNo">317</span>     * If the field is not a {@code ChronoField}, then the result of this method<a name="line.317"></a>
-<span class="sourceLineNo">318</span>     * is obtained by invoking {@code TemporalField.doIsSupported(TemporalAccessor)}<a name="line.318"></a>
+<span class="sourceLineNo">318</span>     * is obtained by invoking {@code TemporalField.isSupportedBy(TemporalAccessor)}<a name="line.318"></a>
 <span class="sourceLineNo">319</span>     * passing {@code this} as the argument.<a name="line.319"></a>
 <span class="sourceLineNo">320</span>     * Whether the field is supported is determined by the field.<a name="line.320"></a>
 <span class="sourceLineNo">321</span>     *<a name="line.321"></a>
@@ -335,7 +335,7 @@
 <span class="sourceLineNo">327</span>        if (field instanceof ChronoField) {<a name="line.327"></a>
 <span class="sourceLineNo">328</span>            return field == YEAR || field == YEAR_OF_ERA || field == ERA;<a name="line.328"></a>
 <span class="sourceLineNo">329</span>        }<a name="line.329"></a>
-<span class="sourceLineNo">330</span>        return field != null &amp;&amp; field.doIsSupported(this);<a name="line.330"></a>
+<span class="sourceLineNo">330</span>        return field != null &amp;&amp; field.isSupportedBy(this);<a name="line.330"></a>
 <span class="sourceLineNo">331</span>    }<a name="line.331"></a>
 <span class="sourceLineNo">332</span><a name="line.332"></a>
 <span class="sourceLineNo">333</span>    /**<a name="line.333"></a>
@@ -352,7 +352,7 @@
 <span class="sourceLineNo">344</span>     * All other {@code ChronoField} instances will throw a {@code DateTimeException}.<a name="line.344"></a>
 <span class="sourceLineNo">345</span>     * &lt;p&gt;<a name="line.345"></a>
 <span class="sourceLineNo">346</span>     * If the field is not a {@code ChronoField}, then the result of this method<a name="line.346"></a>
-<span class="sourceLineNo">347</span>     * is obtained by invoking {@code TemporalField.doRange(TemporalAccessor)}<a name="line.347"></a>
+<span class="sourceLineNo">347</span>     * is obtained by invoking {@code TemporalField.rangeRefinedBy(TemporalAccessor)}<a name="line.347"></a>
 <span class="sourceLineNo">348</span>     * passing {@code this} as the argument.<a name="line.348"></a>
 <span class="sourceLineNo">349</span>     * Whether the range can be obtained is determined by the field.<a name="line.349"></a>
 <span class="sourceLineNo">350</span>     *<a name="line.350"></a>
@@ -382,7 +382,7 @@
 <span class="sourceLineNo">374</span>     * All other {@code ChronoField} instances will throw a {@code DateTimeException}.<a name="line.374"></a>
 <span class="sourceLineNo">375</span>     * &lt;p&gt;<a name="line.375"></a>
 <span class="sourceLineNo">376</span>     * If the field is not a {@code ChronoField}, then the result of this method<a name="line.376"></a>
-<span class="sourceLineNo">377</span>     * is obtained by invoking {@code TemporalField.doGet(TemporalAccessor)}<a name="line.377"></a>
+<span class="sourceLineNo">377</span>     * is obtained by invoking {@code TemporalField.getFrom(TemporalAccessor)}<a name="line.377"></a>
 <span class="sourceLineNo">378</span>     * passing {@code this} as the argument. Whether the value can be obtained,<a name="line.378"></a>
 <span class="sourceLineNo">379</span>     * and what the value represents, is determined by the field.<a name="line.379"></a>
 <span class="sourceLineNo">380</span>     *<a name="line.380"></a>
@@ -409,7 +409,7 @@
 <span class="sourceLineNo">401</span>     * All other {@code ChronoField} instances will throw a {@code DateTimeException}.<a name="line.401"></a>
 <span class="sourceLineNo">402</span>     * &lt;p&gt;<a name="line.402"></a>
 <span class="sourceLineNo">403</span>     * If the field is not a {@code ChronoField}, then the result of this method<a name="line.403"></a>
-<span class="sourceLineNo">404</span>     * is obtained by invoking {@code TemporalField.doGet(TemporalAccessor)}<a name="line.404"></a>
+<span class="sourceLineNo">404</span>     * is obtained by invoking {@code TemporalField.getFrom(TemporalAccessor)}<a name="line.404"></a>
 <span class="sourceLineNo">405</span>     * passing {@code this} as the argument. Whether the value can be obtained,<a name="line.405"></a>
 <span class="sourceLineNo">406</span>     * and what the value represents, is determined by the field.<a name="line.406"></a>
 <span class="sourceLineNo">407</span>     *<a name="line.407"></a>
@@ -428,7 +428,7 @@
 <span class="sourceLineNo">420</span>            }<a name="line.420"></a>
 <span class="sourceLineNo">421</span>            throw new DateTimeException("Unsupported field: " + field.getName());<a name="line.421"></a>
 <span class="sourceLineNo">422</span>        }<a name="line.422"></a>
-<span class="sourceLineNo">423</span>        return field.doGet(this);<a name="line.423"></a>
+<span class="sourceLineNo">423</span>        return field.getFrom(this);<a name="line.423"></a>
 <span class="sourceLineNo">424</span>    }<a name="line.424"></a>
 <span class="sourceLineNo">425</span><a name="line.425"></a>
 <span class="sourceLineNo">426</span>    //-----------------------------------------------------------------------<a name="line.426"></a>
@@ -528,7 +528,7 @@
 <span class="sourceLineNo">520</span>     * All other {@code ChronoField} instances will throw a {@code DateTimeException}.<a name="line.520"></a>
 <span class="sourceLineNo">521</span>     * &lt;p&gt;<a name="line.521"></a>
 <span class="sourceLineNo">522</span>     * If the field is not a {@code ChronoField}, then the result of this method<a name="line.522"></a>
-<span class="sourceLineNo">523</span>     * is obtained by invoking {@code TemporalField.doWith(Temporal, long)}<a name="line.523"></a>
+<span class="sourceLineNo">523</span>     * is obtained by invoking {@code TemporalField.adjustInto(Temporal, long)}<a name="line.523"></a>
 <span class="sourceLineNo">524</span>     * passing {@code this} as the argument. In this case, the field determines<a name="line.524"></a>
 <span class="sourceLineNo">525</span>     * whether and how to adjust the instant.<a name="line.525"></a>
 <span class="sourceLineNo">526</span>     * &lt;p&gt;<a name="line.526"></a>
@@ -552,7 +552,7 @@
 <span class="sourceLineNo">544</span>            }<a name="line.544"></a>
 <span class="sourceLineNo">545</span>            throw new DateTimeException("Unsupported field: " + field.getName());<a name="line.545"></a>
 <span class="sourceLineNo">546</span>        }<a name="line.546"></a>
-<span class="sourceLineNo">547</span>        return field.doWith(this, newValue);<a name="line.547"></a>
+<span class="sourceLineNo">547</span>        return field.adjustInto(this, newValue);<a name="line.547"></a>
 <span class="sourceLineNo">548</span>    }<a name="line.548"></a>
 <span class="sourceLineNo">549</span><a name="line.549"></a>
 <span class="sourceLineNo">550</span>    //-----------------------------------------------------------------------<a name="line.550"></a>
@@ -561,20 +561,20 @@
 <span class="sourceLineNo">553</span>     * &lt;p&gt;<a name="line.553"></a>
 <span class="sourceLineNo">554</span>     * This method returns a new year based on this year with the specified period added.<a name="line.554"></a>
 <span class="sourceLineNo">555</span>     * The adder is typically {@link Period} but may be any other type implementing<a name="line.555"></a>
-<span class="sourceLineNo">556</span>     * the {@link TemporalAdder} interface.<a name="line.556"></a>
+<span class="sourceLineNo">556</span>     * the {@link TemporalAmount} interface.<a name="line.556"></a>
 <span class="sourceLineNo">557</span>     * The calculation is delegated to the specified adjuster, which typically calls<a name="line.557"></a>
 <span class="sourceLineNo">558</span>     * back to {@link #plus(long, TemporalUnit)}.<a name="line.558"></a>
 <span class="sourceLineNo">559</span>     * &lt;p&gt;<a name="line.559"></a>
 <span class="sourceLineNo">560</span>     * This instance is immutable and unaffected by this method call.<a name="line.560"></a>
 <span class="sourceLineNo">561</span>     *<a name="line.561"></a>
-<span class="sourceLineNo">562</span>     * @param adder  the adder to use, not null<a name="line.562"></a>
+<span class="sourceLineNo">562</span>     * @param amount  the amount to add, not null<a name="line.562"></a>
 <span class="sourceLineNo">563</span>     * @return a {@code Year} based on this year with the addition made, not null<a name="line.563"></a>
 <span class="sourceLineNo">564</span>     * @throws DateTimeException if the addition cannot be made<a name="line.564"></a>
 <span class="sourceLineNo">565</span>     * @throws ArithmeticException if numeric overflow occurs<a name="line.565"></a>
 <span class="sourceLineNo">566</span>     */<a name="line.566"></a>
 <span class="sourceLineNo">567</span>    @Override<a name="line.567"></a>
-<span class="sourceLineNo">568</span>    public Year plus(TemporalAdder adder) {<a name="line.568"></a>
-<span class="sourceLineNo">569</span>        return (Year) adder.addTo(this);<a name="line.569"></a>
+<span class="sourceLineNo">568</span>    public Year plus(TemporalAmount amount) {<a name="line.568"></a>
+<span class="sourceLineNo">569</span>        return (Year) amount.addTo(this);<a name="line.569"></a>
 <span class="sourceLineNo">570</span>    }<a name="line.570"></a>
 <span class="sourceLineNo">571</span><a name="line.571"></a>
 <span class="sourceLineNo">572</span>    /**<a name="line.572"></a>
@@ -594,7 +594,7 @@
 <span class="sourceLineNo">586</span>            }<a name="line.586"></a>
 <span class="sourceLineNo">587</span>            throw new DateTimeException("Unsupported unit: " + unit.getName());<a name="line.587"></a>
 <span class="sourceLineNo">588</span>        }<a name="line.588"></a>
-<span class="sourceLineNo">589</span>        return unit.doPlus(this, amountToAdd);<a name="line.589"></a>
+<span class="sourceLineNo">589</span>        return unit.addTo(this, amountToAdd);<a name="line.589"></a>
 <span class="sourceLineNo">590</span>    }<a name="line.590"></a>
 <span class="sourceLineNo">591</span><a name="line.591"></a>
 <span class="sourceLineNo">592</span>    /**<a name="line.592"></a>
@@ -619,20 +619,20 @@
 <span class="sourceLineNo">611</span>     * &lt;p&gt;<a name="line.611"></a>
 <span class="sourceLineNo">612</span>     * This method returns a new year based on this year with the specified period subtracted.<a name="line.612"></a>
 <span class="sourceLineNo">613</span>     * The subtractor is typically {@link Period} but may be any other type implementing<a name="line.613"></a>
-<span class="sourceLineNo">614</span>     * the {@link TemporalSubtractor} interface.<a name="line.614"></a>
+<span class="sourceLineNo">614</span>     * the {@link TemporalAmount} interface.<a name="line.614"></a>
 <span class="sourceLineNo">615</span>     * The calculation is delegated to the specified adjuster, which typically calls<a name="line.615"></a>
 <span class="sourceLineNo">616</span>     * back to {@link #minus(long, TemporalUnit)}.<a name="line.616"></a>
 <span class="sourceLineNo">617</span>     * &lt;p&gt;<a name="line.617"></a>
 <span class="sourceLineNo">618</span>     * This instance is immutable and unaffected by this method call.<a name="line.618"></a>
 <span class="sourceLineNo">619</span>     *<a name="line.619"></a>
-<span class="sourceLineNo">620</span>     * @param subtractor  the subtractor to use, not null<a name="line.620"></a>
+<span class="sourceLineNo">620</span>     * @param amount  the amount to subtract, not null<a name="line.620"></a>
 <span class="sourceLineNo">621</span>     * @return a {@code Year} based on this year with the subtraction made, not null<a name="line.621"></a>
 <span class="sourceLineNo">622</span>     * @throws DateTimeException if the subtraction cannot be made<a name="line.622"></a>
 <span class="sourceLineNo">623</span>     * @throws ArithmeticException if numeric overflow occurs<a name="line.623"></a>
 <span class="sourceLineNo">624</span>     */<a name="line.624"></a>
 <span class="sourceLineNo">625</span>    @Override<a name="line.625"></a>
-<span class="sourceLineNo">626</span>    public Year minus(TemporalSubtractor subtractor) {<a name="line.626"></a>
-<span class="sourceLineNo">627</span>        return (Year) subtractor.subtractFrom(this);<a name="line.627"></a>
+<span class="sourceLineNo">626</span>    public Year minus(TemporalAmount amount) {<a name="line.626"></a>
+<span class="sourceLineNo">627</span>        return (Year) amount.subtractFrom(this);<a name="line.627"></a>
 <span class="sourceLineNo">628</span>    }<a name="line.628"></a>
 <span class="sourceLineNo">629</span><a name="line.629"></a>
 <span class="sourceLineNo">630</span>    /**<a name="line.630"></a>
@@ -680,8 +680,8 @@
 <span class="sourceLineNo">672</span>    @SuppressWarnings("unchecked")<a name="line.672"></a>
 <span class="sourceLineNo">673</span>    @Override<a name="line.673"></a>
 <span class="sourceLineNo">674</span>    public &lt;R&gt; R query(TemporalQuery&lt;R&gt; query) {<a name="line.674"></a>
-<span class="sourceLineNo">675</span>        if (query == TemporalQueries.chrono()) {<a name="line.675"></a>
-<span class="sourceLineNo">676</span>            return (R) ISOChrono.INSTANCE;<a name="line.676"></a>
+<span class="sourceLineNo">675</span>        if (query == TemporalQueries.chronology()) {<a name="line.675"></a>
+<span class="sourceLineNo">676</span>            return (R) IsoChronology.INSTANCE;<a name="line.676"></a>
 <span class="sourceLineNo">677</span>        } else if (query == TemporalQueries.precision()) {<a name="line.677"></a>
 <span class="sourceLineNo">678</span>            return (R) YEARS;<a name="line.678"></a>
 <span class="sourceLineNo">679</span>        }<a name="line.679"></a>
@@ -716,7 +716,7 @@
 <span class="sourceLineNo">708</span>     */<a name="line.708"></a>
 <span class="sourceLineNo">709</span>    @Override<a name="line.709"></a>
 <span class="sourceLineNo">710</span>    public Temporal adjustInto(Temporal temporal) {<a name="line.710"></a>
-<span class="sourceLineNo">711</span>        if (Chrono.from(temporal).equals(ISOChrono.INSTANCE) == false) {<a name="line.711"></a>
+<span class="sourceLineNo">711</span>        if (Chronology.from(temporal).equals(IsoChronology.INSTANCE) == false) {<a name="line.711"></a>
 <span class="sourceLineNo">712</span>            throw new DateTimeException("Adjustment only supported on ISO date-time");<a name="line.712"></a>
 <span class="sourceLineNo">713</span>        }<a name="line.713"></a>
 <span class="sourceLineNo">714</span>        return temporal.with(YEAR, year);<a name="line.714"></a>
@@ -783,195 +783,191 @@
 <span class="sourceLineNo">775</span>            }<a name="line.775"></a>
 <span class="sourceLineNo">776</span>            throw new DateTimeException("Unsupported unit: " + unit.getName());<a name="line.776"></a>
 <span class="sourceLineNo">777</span>        }<a name="line.777"></a>
-<span class="sourceLineNo">778</span>        return unit.between(this, endYear).getAmount();<a name="line.778"></a>
+<span class="sourceLineNo">778</span>        return unit.between(this, endYear);<a name="line.778"></a>
 <span class="sourceLineNo">779</span>    }<a name="line.779"></a>
 <span class="sourceLineNo">780</span><a name="line.780"></a>
 <span class="sourceLineNo">781</span>    //-----------------------------------------------------------------------<a name="line.781"></a>
 <span class="sourceLineNo">782</span>    /**<a name="line.782"></a>
-<span class="sourceLineNo">783</span>     * Returns a date formed from this year at the specified day-of-year.<a name="line.783"></a>
+<span class="sourceLineNo">783</span>     * Combines this year with a day-of-year to create a {@code LocalDate}.<a name="line.783"></a>
 <span class="sourceLineNo">784</span>     * &lt;p&gt;<a name="line.784"></a>
-<span class="sourceLineNo">785</span>     * This combines this year and the specified day-of-year to form a {@code LocalDate}.<a name="line.785"></a>
-<span class="sourceLineNo">786</span>     * The day-of-year value 366 is only valid in a leap year.<a name="line.786"></a>
-<span class="sourceLineNo">787</span>     * &lt;p&gt;<a name="line.787"></a>
-<span class="sourceLineNo">788</span>     * This instance is immutable and unaffected by this method call.<a name="line.788"></a>
-<span class="sourceLineNo">789</span>     *<a name="line.789"></a>
-<span class="sourceLineNo">790</span>     * @param dayOfYear  the day-of-year to use, not null<a name="line.790"></a>
-<span class="sourceLineNo">791</span>     * @return the local date formed from this year and the specified date of year, not null<a name="line.791"></a>
-<span class="sourceLineNo">792</span>     * @throws DateTimeException if the day of year is 366 and this is not a leap year<a name="line.792"></a>
+<span class="sourceLineNo">785</span>     * This returns a {@code LocalDate} formed from this year and the specified day-of-year.<a name="line.785"></a>
+<span class="sourceLineNo">786</span>     * &lt;p&gt;<a name="line.786"></a>
+<span class="sourceLineNo">787</span>     * The day-of-year value 366 is only valid in a leap year.<a name="line.787"></a>
+<span class="sourceLineNo">788</span>     *<a name="line.788"></a>
+<span class="sourceLineNo">789</span>     * @param dayOfYear  the day-of-year to use, not null<a name="line.789"></a>
+<span class="sourceLineNo">790</span>     * @return the local date formed from this year and the specified date of year, not null<a name="line.790"></a>
+<span class="sourceLineNo">791</span>     * @throws DateTimeException if the day of year is zero or less, 366 or greater or equal<a name="line.791"></a>
+<span class="sourceLineNo">792</span>     *  to 366 and this is not a leap year<a name="line.792"></a>
 <span class="sourceLineNo">793</span>     */<a name="line.793"></a>
 <span class="sourceLineNo">794</span>    public LocalDate atDay(int dayOfYear) {<a name="line.794"></a>
 <span class="sourceLineNo">795</span>        return LocalDate.ofYearDay(year, dayOfYear);<a name="line.795"></a>
 <span class="sourceLineNo">796</span>    }<a name="line.796"></a>
 <span class="sourceLineNo">797</span><a name="line.797"></a>
 <span class="sourceLineNo">798</span>    /**<a name="line.798"></a>
-<span class="sourceLineNo">799</span>     * Returns a year-month formed from this year at the specified month.<a name="line.799"></a>
+<span class="sourceLineNo">799</span>     * Combines this year with a month to create a {@code YearMonth}.<a name="line.799"></a>
 <span class="sourceLineNo">800</span>     * &lt;p&gt;<a name="line.800"></a>
-<span class="sourceLineNo">801</span>     * This combines this year and the specified month to form a {@code YearMonth}.<a name="line.801"></a>
+<span class="sourceLineNo">801</span>     * This returns a {@code YearMonth} formed from this year and the specified month.<a name="line.801"></a>
 <span class="sourceLineNo">802</span>     * All possible combinations of year and month are valid.<a name="line.802"></a>
 <span class="sourceLineNo">803</span>     * &lt;p&gt;<a name="line.803"></a>
 <span class="sourceLineNo">804</span>     * This method can be used as part of a chain to produce a date:<a name="line.804"></a>
 <span class="sourceLineNo">805</span>     * &lt;pre&gt;<a name="line.805"></a>
 <span class="sourceLineNo">806</span>     *  LocalDate date = year.atMonth(month).atDay(day);<a name="line.806"></a>
 <span class="sourceLineNo">807</span>     * &lt;/pre&gt;<a name="line.807"></a>
-<span class="sourceLineNo">808</span>     * &lt;p&gt;<a name="line.808"></a>
-<span class="sourceLineNo">809</span>     * This instance is immutable and unaffected by this method call.<a name="line.809"></a>
-<span class="sourceLineNo">810</span>     *<a name="line.810"></a>
-<span class="sourceLineNo">811</span>     * @param month  the month-of-year to use, not null<a name="line.811"></a>
-<span class="sourceLineNo">812</span>     * @return the year-month formed from this year and the specified month, not null<a name="line.812"></a>
-<span class="sourceLineNo">813</span>     */<a name="line.813"></a>
-<span class="sourceLineNo">814</span>    public YearMonth atMonth(Month month) {<a name="line.814"></a>
-<span class="sourceLineNo">815</span>        return YearMonth.of(year, month);<a name="line.815"></a>
-<span class="sourceLineNo">816</span>    }<a name="line.816"></a>
-<span class="sourceLineNo">817</span><a name="line.817"></a>
-<span class="sourceLineNo">818</span>    /**<a name="line.818"></a>
-<span class="sourceLineNo">819</span>     * Returns a year-month formed from this year at the specified month.<a name="line.819"></a>
-<span class="sourceLineNo">820</span>     * &lt;p&gt;<a name="line.820"></a>
-<span class="sourceLineNo">821</span>     * This combines this year and the specified month to form a {@code YearMonth}.<a name="line.821"></a>
-<span class="sourceLineNo">822</span>     * All possible combinations of year and month are valid.<a name="line.822"></a>
-<span class="sourceLineNo">823</span>     * &lt;p&gt;<a name="line.823"></a>
-<span class="sourceLineNo">824</span>     * This method can be used as part of a chain to produce a date:<a name="line.824"></a>
-<span class="sourceLineNo">825</span>     * &lt;pre&gt;<a name="line.825"></a>
-<span class="sourceLineNo">826</span>     *  LocalDate date = year.atMonth(month).atDay(day);<a name="line.826"></a>
-<span class="sourceLineNo">827</span>     * &lt;/pre&gt;<a name="line.827"></a>
-<span class="sourceLineNo">828</span>     * &lt;p&gt;<a name="line.828"></a>
-<span class="sourceLineNo">829</span>     * This instance is immutable and unaffected by this method call.<a name="line.829"></a>
-<span class="sourceLineNo">830</span>     *<a name="line.830"></a>
-<span class="sourceLineNo">831</span>     * @param month  the month-of-year to use, from 1 (January) to 12 (December)<a name="line.831"></a>
-<span class="sourceLineNo">832</span>     * @return the year-month formed from this year and the specified month, not null<a name="line.832"></a>
-<span class="sourceLineNo">833</span>     */<a name="line.833"></a>
-<span class="sourceLineNo">834</span>    public YearMonth atMonth(int month) {<a name="line.834"></a>
-<span class="sourceLineNo">835</span>        return YearMonth.of(year, month);<a name="line.835"></a>
-<span class="sourceLineNo">836</span>    }<a name="line.836"></a>
-<span class="sourceLineNo">837</span><a name="line.837"></a>
-<span class="sourceLineNo">838</span>    /**<a name="line.838"></a>
-<span class="sourceLineNo">839</span>     * Returns a date formed from this year at the specified month-day.<a name="line.839"></a>
-<span class="sourceLineNo">840</span>     * &lt;p&gt;<a name="line.840"></a>
-<span class="sourceLineNo">841</span>     * This combines this year and the specified month-day to form a {@code LocalDate}.<a name="line.841"></a>
-<span class="sourceLineNo">842</span>     * The month-day value of February 29th is only valid in a leap year.<a name="line.842"></a>
-<span class="sourceLineNo">843</span>     * &lt;p&gt;<a name="line.843"></a>
-<span class="sourceLineNo">844</span>     * This instance is immutable and unaffected by this method call.<a name="line.844"></a>
-<span class="sourceLineNo">845</span>     *<a name="line.845"></a>
-<span class="sourceLineNo">846</span>     * @param monthDay  the month-day to use, not null<a name="line.846"></a>
-<span class="sourceLineNo">847</span>     * @return the local date formed from this year and the specified month-day, not null<a name="line.847"></a>
-<span class="sourceLineNo">848</span>     * @throws DateTimeException if the month-day is February 29th and this is not a leap year<a name="line.848"></a>
-<span class="sourceLineNo">849</span>     */<a name="line.849"></a>
-<span class="sourceLineNo">850</span>    public LocalDate atMonthDay(MonthDay monthDay) {<a name="line.850"></a>
-<span class="sourceLineNo">851</span>        return LocalDate.of(year, monthDay.getMonth(), monthDay.getDayOfMonth());<a name="line.851"></a>
-<span class="sourceLineNo">852</span>    }<a name="line.852"></a>
-<span class="sourceLineNo">853</span><a name="line.853"></a>
-<span class="sourceLineNo">854</span>    //-----------------------------------------------------------------------<a name="line.854"></a>
-<span class="sourceLineNo">855</span>    /**<a name="line.855"></a>
-<span class="sourceLineNo">856</span>     * Compares this year to another year.<a name="line.856"></a>
-<span class="sourceLineNo">857</span>     * &lt;p&gt;<a name="line.857"></a>
-<span class="sourceLineNo">858</span>     * The comparison is based on the value of the year.<a name="line.858"></a>
-<span class="sourceLineNo">859</span>     * It is "consistent with equals", as defined by {@link Comparable}.<a name="line.859"></a>
-<span class="sourceLineNo">860</span>     *<a name="line.860"></a>
-<span class="sourceLineNo">861</span>     * @param other  the other year to compare to, not null<a name="line.861"></a>
-<span class="sourceLineNo">862</span>     * @return the comparator value, negative if less, positive if greater<a name="line.862"></a>
-<span class="sourceLineNo">863</span>     */<a name="line.863"></a>
-<span class="sourceLineNo">864</span>    public int compareTo(Year other) {<a name="line.864"></a>
-<span class="sourceLineNo">865</span>        return year - other.year;<a name="line.865"></a>
-<span class="sourceLineNo">866</span>    }<a name="line.866"></a>
-<span class="sourceLineNo">867</span><a name="line.867"></a>
-<span class="sourceLineNo">868</span>    /**<a name="line.868"></a>
-<span class="sourceLineNo">869</span>     * Is this year after the specified year.<a name="line.869"></a>
-<span class="sourceLineNo">870</span>     *<a name="line.870"></a>
-<span class="sourceLineNo">871</span>     * @param other  the other year to compare to, not null<a name="line.871"></a>
-<span class="sourceLineNo">872</span>     * @return true if this is after the specified year<a name="line.872"></a>
-<span class="sourceLineNo">873</span>     */<a name="line.873"></a>
-<span class="sourceLineNo">874</span>    public boolean isAfter(Year other) {<a name="line.874"></a>
-<span class="sourceLineNo">875</span>        return year &gt; other.year;<a name="line.875"></a>
-<span class="sourceLineNo">876</span>    }<a name="line.876"></a>
-<span class="sourceLineNo">877</span><a name="line.877"></a>
-<span class="sourceLineNo">878</span>    /**<a name="line.878"></a>
-<span class="sourceLineNo">879</span>     * Is this year before the specified year.<a name="line.879"></a>
-<span class="sourceLineNo">880</span>     *<a name="line.880"></a>
-<span class="sourceLineNo">881</span>     * @param other  the other year to compare to, not null<a name="line.881"></a>
-<span class="sourceLineNo">882</span>     * @return true if this point is before the specified year<a name="line.882"></a>
-<span class="sourceLineNo">883</span>     */<a name="line.883"></a>
-<span class="sourceLineNo">884</span>    public boolean isBefore(Year other) {<a name="line.884"></a>
-<span class="sourceLineNo">885</span>        return year &lt; other.year;<a name="line.885"></a>
-<span class="sourceLineNo">886</span>    }<a name="line.886"></a>
-<span class="sourceLineNo">887</span><a name="line.887"></a>
-<span class="sourceLineNo">888</span>    //-----------------------------------------------------------------------<a name="line.888"></a>
-<span class="sourceLineNo">889</span>    /**<a name="line.889"></a>
-<span class="sourceLineNo">890</span>     * Checks if this year is equal to another year.<a name="line.890"></a>
-<span class="sourceLineNo">891</span>     * &lt;p&gt;<a name="line.891"></a>
-<span class="sourceLineNo">892</span>     * The comparison is based on the time-line position of the years.<a name="line.892"></a>
-<span class="sourceLineNo">893</span>     *<a name="line.893"></a>
-<span class="sourceLineNo">894</span>     * @param obj  the object to check, null returns false<a name="line.894"></a>
-<span class="sourceLineNo">895</span>     * @return true if this is equal to the other year<a name="line.895"></a>
-<span class="sourceLineNo">896</span>     */<a name="line.896"></a>
-<span class="sourceLineNo">897</span>    @Override<a name="line.897"></a>
-<span class="sourceLineNo">898</span>    public boolean equals(Object obj) {<a name="line.898"></a>
-<span class="sourceLineNo">899</span>        if (this == obj) {<a name="line.899"></a>
-<span class="sourceLineNo">900</span>            return true;<a name="line.900"></a>
-<span class="sourceLineNo">901</span>        }<a name="line.901"></a>
-<span class="sourceLineNo">902</span>        if (obj instanceof Year) {<a name="line.902"></a>
-<span class="sourceLineNo">903</span>            return year == ((Year) obj).year;<a name="line.903"></a>
-<span class="sourceLineNo">904</span>        }<a name="line.904"></a>
-<span class="sourceLineNo">905</span>        return false;<a name="line.905"></a>
-<span class="sourceLineNo">906</span>    }<a name="line.906"></a>
-<span class="sourceLineNo">907</span><a name="line.907"></a>
-<span class="sourceLineNo">908</span>    /**<a name="line.908"></a>
-<span class="sourceLineNo">909</span>     * A hash code for this year.<a name="line.909"></a>
-<span class="sourceLineNo">910</span>     *<a name="line.910"></a>
-<span class="sourceLineNo">911</span>     * @return a suitable hash code<a name="line.911"></a>
-<span class="sourceLineNo">912</span>     */<a name="line.912"></a>
-<span class="sourceLineNo">913</span>    @Override<a name="line.913"></a>
-<span class="sourceLineNo">914</span>    public int hashCode() {<a name="line.914"></a>
-<span class="sourceLineNo">915</span>        return year;<a name="line.915"></a>
-<span class="sourceLineNo">916</span>    }<a name="line.916"></a>
-<span class="sourceLineNo">917</span><a name="line.917"></a>
-<span class="sourceLineNo">918</span>    //-----------------------------------------------------------------------<a name="line.918"></a>
-<span class="sourceLineNo">919</span>    /**<a name="line.919"></a>
-<span class="sourceLineNo">920</span>     * Outputs this year as a {@code String}.<a name="line.920"></a>
-<span class="sourceLineNo">921</span>     *<a name="line.921"></a>
-<span class="sourceLineNo">922</span>     * @return a string representation of this year, not null<a name="line.922"></a>
-<span class="sourceLineNo">923</span>     */<a name="line.923"></a>
-<span class="sourceLineNo">924</span>    @Override<a name="line.924"></a>
-<span class="sourceLineNo">925</span>    public String toString() {<a name="line.925"></a>
-<span class="sourceLineNo">926</span>        return Integer.toString(year);<a name="line.926"></a>
-<span class="sourceLineNo">927</span>    }<a name="line.927"></a>
-<span class="sourceLineNo">928</span><a name="line.928"></a>
-<span class="sourceLineNo">929</span>    /**<a name="line.929"></a>
-<span class="sourceLineNo">930</span>     * Outputs this year as a {@code String} using the formatter.<a name="line.930"></a>
-<span class="sourceLineNo">931</span>     * &lt;p&gt;<a name="line.931"></a>
-<span class="sourceLineNo">932</span>     * This year will be passed to the formatter<a name="line.932"></a>
-<span class="sourceLineNo">933</span>     * {@link DateTimeFormatter#print(TemporalAccessor) print method}.<a name="line.933"></a>
-<span class="sourceLineNo">934</span>     *<a name="line.934"></a>
-<span class="sourceLineNo">935</span>     * @param formatter  the formatter to use, not null<a name="line.935"></a>
-<span class="sourceLineNo">936</span>     * @return the formatted year string, not null<a name="line.936"></a>
-<span class="sourceLineNo">937</span>     * @throws DateTimeException if an error occurs during printing<a name="line.937"></a>
-<span class="sourceLineNo">938</span>     */<a name="line.938"></a>
-<span class="sourceLineNo">939</span>    public String toString(DateTimeFormatter formatter) {<a name="line.939"></a>
-<span class="sourceLineNo">940</span>        Objects.requireNonNull(formatter, "formatter");<a name="line.940"></a>
-<span class="sourceLineNo">941</span>        return formatter.print(this);<a name="line.941"></a>
-<span class="sourceLineNo">942</span>    }<a name="line.942"></a>
-<span class="sourceLineNo">943</span><a name="line.943"></a>
-<span class="sourceLineNo">944</span>    //-----------------------------------------------------------------------<a name="line.944"></a>
-<span class="sourceLineNo">945</span>    private Object writeReplace() {<a name="line.945"></a>
-<span class="sourceLineNo">946</span>        return new Ser(Ser.YEAR_TYPE, this);<a name="line.946"></a>
-<span class="sourceLineNo">947</span>    }<a name="line.947"></a>
-<span class="sourceLineNo">948</span><a name="line.948"></a>
-<span class="sourceLineNo">949</span>    /**<a name="line.949"></a>
-<span class="sourceLineNo">950</span>     * Defend against malicious streams.<a name="line.950"></a>
-<span class="sourceLineNo">951</span>     * @return never<a name="line.951"></a>
-<span class="sourceLineNo">952</span>     * @throws InvalidObjectException always<a name="line.952"></a>
-<span class="sourceLineNo">953</span>     */<a name="line.953"></a>
-<span class="sourceLineNo">954</span>    private Object readResolve() throws ObjectStreamException {<a name="line.954"></a>
-<span class="sourceLineNo">955</span>        throw new InvalidObjectException("Deserialization via serialization delegate");<a name="line.955"></a>
+<span class="sourceLineNo">808</span>     *<a name="line.808"></a>
+<span class="sourceLineNo">809</span>     * @param month  the month-of-year to use, not null<a name="line.809"></a>
+<span class="sourceLineNo">810</span>     * @return the year-month formed from this year and the specified month, not null<a name="line.810"></a>
+<span class="sourceLineNo">811</span>     */<a name="line.811"></a>
+<span class="sourceLineNo">812</span>    public YearMonth atMonth(Month month) {<a name="line.812"></a>
+<span class="sourceLineNo">813</span>        return YearMonth.of(year, month);<a name="line.813"></a>
+<span class="sourceLineNo">814</span>    }<a name="line.814"></a>
+<span class="sourceLineNo">815</span><a name="line.815"></a>
+<span class="sourceLineNo">816</span>    /**<a name="line.816"></a>
+<span class="sourceLineNo">817</span>     * Combines this year with a month to create a {@code YearMonth}.<a name="line.817"></a>
+<span class="sourceLineNo">818</span>     * &lt;p&gt;<a name="line.818"></a>
+<span class="sourceLineNo">819</span>     * This returns a {@code YearMonth} formed from this year and the specified month.<a name="line.819"></a>
+<span class="sourceLineNo">820</span>     * All possible combinations of year and month are valid.<a name="line.820"></a>
+<span class="sourceLineNo">821</span>     * &lt;p&gt;<a name="line.821"></a>
+<span class="sourceLineNo">822</span>     * This method can be used as part of a chain to produce a date:<a name="line.822"></a>
+<span class="sourceLineNo">823</span>     * &lt;pre&gt;<a name="line.823"></a>
+<span class="sourceLineNo">824</span>     *  LocalDate date = year.atMonth(month).atDay(day);<a name="line.824"></a>
+<span class="sourceLineNo">825</span>     * &lt;/pre&gt;<a name="line.825"></a>
+<span class="sourceLineNo">826</span>     *<a name="line.826"></a>
+<span class="sourceLineNo">827</span>     * @param month  the month-of-year to use, from 1 (January) to 12 (December)<a name="line.827"></a>
+<span class="sourceLineNo">828</span>     * @return the year-month formed from this year and the specified month, not null<a name="line.828"></a>
+<span class="sourceLineNo">829</span>     * @throws DateTimeException if the month is invalid<a name="line.829"></a>
+<span class="sourceLineNo">830</span>     */<a name="line.830"></a>
+<span class="sourceLineNo">831</span>    public YearMonth atMonth(int month) {<a name="line.831"></a>
+<span class="sourceLineNo">832</span>        return YearMonth.of(year, month);<a name="line.832"></a>
+<span class="sourceLineNo">833</span>    }<a name="line.833"></a>
+<span class="sourceLineNo">834</span><a name="line.834"></a>
+<span class="sourceLineNo">835</span>    /**<a name="line.835"></a>
+<span class="sourceLineNo">836</span>     * Combines this year with a month-day to create a {@code LocalDate}.<a name="line.836"></a>
+<span class="sourceLineNo">837</span>     * &lt;p&gt;<a name="line.837"></a>
+<span class="sourceLineNo">838</span>     * This returns a {@code LocalDate} formed from this year and the specified month-day.<a name="line.838"></a>
+<span class="sourceLineNo">839</span>     * &lt;p&gt;<a name="line.839"></a>
+<span class="sourceLineNo">840</span>     * A month-day of February 29th will be adjusted to February 28th in the resulting<a name="line.840"></a>
+<span class="sourceLineNo">841</span>     * date if the year is not a leap year.<a name="line.841"></a>
+<span class="sourceLineNo">842</span>     *<a name="line.842"></a>
+<span class="sourceLineNo">843</span>     * @param monthDay  the month-day to use, not null<a name="line.843"></a>
+<span class="sourceLineNo">844</span>     * @return the local date formed from this year and the specified month-day, not null<a name="line.844"></a>
+<span class="sourceLineNo">845</span>     */<a name="line.845"></a>
+<span class="sourceLineNo">846</span>    public LocalDate atMonthDay(MonthDay monthDay) {<a name="line.846"></a>
+<span class="sourceLineNo">847</span>        return monthDay.atYear(year);<a name="line.847"></a>
+<span class="sourceLineNo">848</span>    }<a name="line.848"></a>
+<span class="sourceLineNo">849</span><a name="line.849"></a>
+<span class="sourceLineNo">850</span>    //-----------------------------------------------------------------------<a name="line.850"></a>
+<span class="sourceLineNo">851</span>    /**<a name="line.851"></a>
+<span class="sourceLineNo">852</span>     * Compares this year to another year.<a name="line.852"></a>
+<span class="sourceLineNo">853</span>     * &lt;p&gt;<a name="line.853"></a>
+<span class="sourceLineNo">854</span>     * The comparison is based on the value of the year.<a name="line.854"></a>
+<span class="sourceLineNo">855</span>     * It is "consistent with equals", as defined by {@link Comparable}.<a name="line.855"></a>
+<span class="sourceLineNo">856</span>     *<a name="line.856"></a>
+<span class="sourceLineNo">857</span>     * @param other  the other year to compare to, not null<a name="line.857"></a>
+<span class="sourceLineNo">858</span>     * @return the comparator value, negative if less, positive if greater<a name="line.858"></a>
+<span class="sourceLineNo">859</span>     */<a name="line.859"></a>
+<span class="sourceLineNo">860</span>    public int compareTo(Year other) {<a name="line.860"></a>
+<span class="sourceLineNo">861</span>        return year - other.year;<a name="line.861"></a>
+<span class="sourceLineNo">862</span>    }<a name="line.862"></a>
+<span class="sourceLineNo">863</span><a name="line.863"></a>
+<span class="sourceLineNo">864</span>    /**<a name="line.864"></a>
+<span class="sourceLineNo">865</span>     * Is this year after the specified year.<a name="line.865"></a>
+<span class="sourceLineNo">866</span>     *<a name="line.866"></a>
+<span class="sourceLineNo">867</span>     * @param other  the other year to compare to, not null<a name="line.867"></a>
+<span class="sourceLineNo">868</span>     * @return true if this is after the specified year<a name="line.868"></a>
+<span class="sourceLineNo">869</span>     */<a name="line.869"></a>
+<span class="sourceLineNo">870</span>    public boolean isAfter(Year other) {<a name="line.870"></a>
+<span class="sourceLineNo">871</span>        return year &gt; other.year;<a name="line.871"></a>
+<span class="sourceLineNo">872</span>    }<a name="line.872"></a>
+<span class="sourceLineNo">873</span><a name="line.873"></a>
+<span class="sourceLineNo">874</span>    /**<a name="line.874"></a>
+<span class="sourceLineNo">875</span>     * Is this year before the specified year.<a name="line.875"></a>
+<span class="sourceLineNo">876</span>     *<a name="line.876"></a>
+<span class="sourceLineNo">877</span>     * @param other  the other year to compare to, not null<a name="line.877"></a>
+<span class="sourceLineNo">878</span>     * @return true if this point is before the specified year<a name="line.878"></a>
+<span class="sourceLineNo">879</span>     */<a name="line.879"></a>
+<span class="sourceLineNo">880</span>    public boolean isBefore(Year other) {<a name="line.880"></a>
+<span class="sourceLineNo">881</span>        return year &lt; other.year;<a name="line.881"></a>
+<span class="sourceLineNo">882</span>    }<a name="line.882"></a>
+<span class="sourceLineNo">883</span><a name="line.883"></a>
+<span class="sourceLineNo">884</span>    //-----------------------------------------------------------------------<a name="line.884"></a>
+<span class="sourceLineNo">885</span>    /**<a name="line.885"></a>
+<span class="sourceLineNo">886</span>     * Checks if this year is equal to another year.<a name="line.886"></a>
+<span class="sourceLineNo">887</span>     * &lt;p&gt;<a name="line.887"></a>
+<span class="sourceLineNo">888</span>     * The comparison is based on the time-line position of the years.<a name="line.888"></a>
+<span class="sourceLineNo">889</span>     *<a name="line.889"></a>
+<span class="sourceLineNo">890</span>     * @param obj  the object to check, null returns false<a name="line.890"></a>
+<span class="sourceLineNo">891</span>     * @return true if this is equal to the other year<a name="line.891"></a>
+<span class="sourceLineNo">892</span>     */<a name="line.892"></a>
+<span class="sourceLineNo">893</span>    @Override<a name="line.893"></a>
+<span class="sourceLineNo">894</span>    public boolean equals(Object obj) {<a name="line.894"></a>
+<span class="sourceLineNo">895</span>        if (this == obj) {<a name="line.895"></a>
+<span class="sourceLineNo">896</span>            return true;<a name="line.896"></a>
+<span class="sourceLineNo">897</span>        }<a name="line.897"></a>
+<span class="sourceLineNo">898</span>        if (obj instanceof Year) {<a name="line.898"></a>
+<span class="sourceLineNo">899</span>            return year == ((Year) obj).year;<a name="line.899"></a>
+<span class="sourceLineNo">900</span>        }<a name="line.900"></a>
+<span class="sourceLineNo">901</span>        return false;<a name="line.901"></a>
+<span class="sourceLineNo">902</span>    }<a name="line.902"></a>
+<span class="sourceLineNo">903</span><a name="line.903"></a>
+<span class="sourceLineNo">904</span>    /**<a name="line.904"></a>
+<span class="sourceLineNo">905</span>     * A hash code for this year.<a name="line.905"></a>
+<span class="sourceLineNo">906</span>     *<a name="line.906"></a>
+<span class="sourceLineNo">907</span>     * @return a suitable hash code<a name="line.907"></a>
+<span class="sourceLineNo">908</span>     */<a name="line.908"></a>
+<span class="sourceLineNo">909</span>    @Override<a name="line.909"></a>
+<span class="sourceLineNo">910</span>    public int hashCode() {<a name="line.910"></a>
+<span class="sourceLineNo">911</span>        return year;<a name="line.911"></a>
+<span class="sourceLineNo">912</span>    }<a name="line.912"></a>
+<span class="sourceLineNo">913</span><a name="line.913"></a>
+<span class="sourceLineNo">914</span>    //-----------------------------------------------------------------------<a name="line.914"></a>
+<span class="sourceLineNo">915</span>    /**<a name="line.915"></a>
+<span class="sourceLineNo">916</span>     * Outputs this year as a {@code String}.<a name="line.916"></a>
+<span class="sourceLineNo">917</span>     *<a name="line.917"></a>
+<span class="sourceLineNo">918</span>     * @return a string representation of this year, not null<a name="line.918"></a>
+<span class="sourceLineNo">919</span>     */<a name="line.919"></a>
+<span class="sourceLineNo">920</span>    @Override<a name="line.920"></a>
+<span class="sourceLineNo">921</span>    public String toString() {<a name="line.921"></a>
+<span class="sourceLineNo">922</span>        return Integer.toString(year);<a name="line.922"></a>
+<span class="sourceLineNo">923</span>    }<a name="line.923"></a>
+<span class="sourceLineNo">924</span><a name="line.924"></a>
+<span class="sourceLineNo">925</span>    /**<a name="line.925"></a>
+<span class="sourceLineNo">926</span>     * Outputs this year as a {@code String} using the formatter.<a name="line.926"></a>
+<span class="sourceLineNo">927</span>     * &lt;p&gt;<a name="line.927"></a>
+<span class="sourceLineNo">928</span>     * This year will be passed to the formatter<a name="line.928"></a>
+<span class="sourceLineNo">929</span>     * {@link DateTimeFormatter#format(TemporalAccessor) print method}.<a name="line.929"></a>
+<span class="sourceLineNo">930</span>     *<a name="line.930"></a>
+<span class="sourceLineNo">931</span>     * @param formatter  the formatter to use, not null<a name="line.931"></a>
+<span class="sourceLineNo">932</span>     * @return the formatted year string, not null<a name="line.932"></a>
+<span class="sourceLineNo">933</span>     * @throws DateTimeException if an error occurs during printing<a name="line.933"></a>
+<span class="sourceLineNo">934</span>     */<a name="line.934"></a>
+<span class="sourceLineNo">935</span>    public String toString(DateTimeFormatter formatter) {<a name="line.935"></a>
+<span class="sourceLineNo">936</span>        Objects.requireNonNull(formatter, "formatter");<a name="line.936"></a>
+<span class="sourceLineNo">937</span>        return formatter.format(this);<a name="line.937"></a>
+<span class="sourceLineNo">938</span>    }<a name="line.938"></a>
+<span class="sourceLineNo">939</span><a name="line.939"></a>
+<span class="sourceLineNo">940</span>    //-----------------------------------------------------------------------<a name="line.940"></a>
+<span class="sourceLineNo">941</span>    private Object writeReplace() {<a name="line.941"></a>
+<span class="sourceLineNo">942</span>        return new Ser(Ser.YEAR_TYPE, this);<a name="line.942"></a>
+<span class="sourceLineNo">943</span>    }<a name="line.943"></a>
+<span class="sourceLineNo">944</span><a name="line.944"></a>
+<span class="sourceLineNo">945</span>    /**<a name="line.945"></a>
+<span class="sourceLineNo">946</span>     * Defend against malicious streams.<a name="line.946"></a>
+<span class="sourceLineNo">947</span>     * @return never<a name="line.947"></a>
+<span class="sourceLineNo">948</span>     * @throws InvalidObjectException always<a name="line.948"></a>
+<span class="sourceLineNo">949</span>     */<a name="line.949"></a>
+<span class="sourceLineNo">950</span>    private Object readResolve() throws ObjectStreamException {<a name="line.950"></a>
+<span class="sourceLineNo">951</span>        throw new InvalidObjectException("Deserialization via serialization delegate");<a name="line.951"></a>
+<span class="sourceLineNo">952</span>    }<a name="line.952"></a>
+<span class="sourceLineNo">953</span><a name="line.953"></a>
+<span class="sourceLineNo">954</span>    void writeExternal(DataOutput out) throws IOException {<a name="line.954"></a>
+<span class="sourceLineNo">955</span>        out.writeInt(year);<a name="line.955"></a>
 <span class="sourceLineNo">956</span>    }<a name="line.956"></a>
 <span class="sourceLineNo">957</span><a name="line.957"></a>
-<span class="sourceLineNo">958</span>    void writeExternal(DataOutput out) throws IOException {<a name="line.958"></a>
-<span class="sourceLineNo">959</span>        out.writeInt(year);<a name="line.959"></a>
+<span class="sourceLineNo">958</span>    static Year readExternal(DataInput in) throws IOException {<a name="line.958"></a>
+<span class="sourceLineNo">959</span>        return Year.of(in.readInt());<a name="line.959"></a>
 <span class="sourceLineNo">960</span>    }<a name="line.960"></a>
 <span class="sourceLineNo">961</span><a name="line.961"></a>
-<span class="sourceLineNo">962</span>    static Year readExternal(DataInput in) throws IOException {<a name="line.962"></a>
-<span class="sourceLineNo">963</span>        return Year.of(in.readInt());<a name="line.963"></a>
-<span class="sourceLineNo">964</span>    }<a name="line.964"></a>
-<span class="sourceLineNo">965</span><a name="line.965"></a>
-<span class="sourceLineNo">966</span>}<a name="line.966"></a>
+<span class="sourceLineNo">962</span>}<a name="line.962"></a>
 
 
 

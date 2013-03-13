@@ -54,7 +54,7 @@
 <span class="sourceLineNo">046</span>import org.threeten.bp.LocalTime;<a name="line.46"></a>
 <span class="sourceLineNo">047</span>import org.threeten.bp.Month;<a name="line.47"></a>
 <span class="sourceLineNo">048</span>import org.threeten.bp.ZoneOffset;<a name="line.48"></a>
-<span class="sourceLineNo">049</span>import org.threeten.bp.temporal.ISOChrono;<a name="line.49"></a>
+<span class="sourceLineNo">049</span>import org.threeten.bp.chrono.IsoChronology;<a name="line.49"></a>
 <span class="sourceLineNo">050</span><a name="line.50"></a>
 <span class="sourceLineNo">051</span>/**<a name="line.51"></a>
 <span class="sourceLineNo">052</span> * A rule expressing how to create a transition.<a name="line.52"></a>
@@ -407,7 +407,7 @@
 <span class="sourceLineNo">399</span>    public ZoneOffsetTransition createTransition(int year) {<a name="line.399"></a>
 <span class="sourceLineNo">400</span>        LocalDate date;<a name="line.400"></a>
 <span class="sourceLineNo">401</span>        if (dom &lt; 0) {<a name="line.401"></a>
-<span class="sourceLineNo">402</span>            date = LocalDate.of(year, month, month.length(ISOChrono.INSTANCE.isLeapYear(year)) + 1 + dom);<a name="line.402"></a>
+<span class="sourceLineNo">402</span>            date = LocalDate.of(year, month, month.length(IsoChronology.INSTANCE.isLeapYear(year)) + 1 + dom);<a name="line.402"></a>
 <span class="sourceLineNo">403</span>            if (dow != null) {<a name="line.403"></a>
 <span class="sourceLineNo">404</span>                date = date.with(previousOrSame(dow));<a name="line.404"></a>
 <span class="sourceLineNo">405</span>            }<a name="line.405"></a>
