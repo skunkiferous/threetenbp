@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>threeten</name>
+	<name>threetenbp</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -11,24 +11,13 @@
 			</arguments>
 		</buildCommand>
 		<buildCommand>
-			<name>net.sf.eclipsecs.core.CheckstyleBuilder</name>
+			<name>org.eclipse.m2e.core.maven2Builder</name>
 			<arguments>
 			</arguments>
 		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
-		<nature>net.sf.eclipsecs.core.CheckstyleNature</nature>
+		<nature>org.eclipse.m2e.core.maven2Nature</nature>
 	</natures>
-	<filteredResources>
-		<filter>
-			<id>1353369842080</id>
-			<name></name>
-			<type>26</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-.git</arguments>
-			</matcher>
-		</filter>
-	</filteredResources>
 </projectDescription>
